@@ -8,23 +8,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#030508;
-  --bg2:#080c12;
-  --bg3:#0d1220;
-  --card:#0a0f1a;
-  --card2:#0f1520;
-  --border:#1a2235;
-  --border2:#243050;
-  --accent:#00d4ff;
-  --accent2:#7b5ea7;
-  --accent3:#00ff9d;
-  --red:#ff4757;
-  --yellow:#ffd32a;
-  --text:#c8d8f0;
-  --text2:#6a7f9a;
-  --text3:#3a4f6a;
-  --glow:0 0 20px rgba(0,212,255,.18);
-  --glow2:0 0 40px rgba(0,212,255,.08);
+  --bg:#07040f;
+  --bg2:#0d0818;
+  --card:#100c1e;
+  --card2:#160f28;
+  --border:#251840;
+  --border2:#3d2860;
+  --a1:#ff2d78;   /* neon pink */
+  --a2:#bf00ff;   /* electric purple */
+  --a3:#ff7b00;   /* hot orange */
+  --a4:#00e5ff;   /* cyan accent */
+  --ag:#39ff14;   /* neon green for good scores */
+  --red:#ff2d5a;
+  --yellow:#ffb700;
+  --text:#e8d8ff;
+  --text2:#8868b0;
+  --text3:#4a3870;
+  --glow1:0 0 24px rgba(255,45,120,.22);
+  --glow2:0 0 24px rgba(191,0,255,.22);
+  --glow3:0 0 24px rgba(0,229,255,.18);
   --font:'Syne',sans-serif;
   --mono:'JetBrains Mono',monospace;
 }
@@ -32,69 +34,87 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 
-/* ── canvas bg ── */
-#canvas-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
-.noise{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+/* ── animated mesh bg ── */
+.mesh{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 20%,rgba(191,0,255,.12) 0%,transparent 65%),
+    radial-gradient(ellipse 60% 45% at 85% 75%,rgba(255,45,120,.1) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 60% at 50% 50%,rgba(0,229,255,.05) 0%,transparent 70%),
+    var(--bg);
+  animation:meshPulse 8s ease-in-out infinite alternate}
+@keyframes meshPulse{
+  0%{background-position:0% 0%,100% 100%,50% 50%}
+  100%{background-position:5% 8%,95% 92%,48% 52%}}
+
+/* ── scanlines ── */
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.025;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.6) 2px,rgba(255,255,255,.6) 3px)}
+
+/* ── canvas particles ── */
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4}
 
 /* ── layout ── */
-.wrap{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.wrap{position:relative;z-index:2;max-width:960px;margin:0 auto;padding:2rem 1.25rem 5rem}
 
 /* ── hero ── */
-.hero{text-align:center;padding:3.5rem 0 2.5rem;position:relative}
-.hero-logo{font-size:clamp(3rem,10vw,6rem);font-weight:800;letter-spacing:-.04em;line-height:1;
-  background:linear-gradient(135deg,var(--accent) 0%,#7b5ea7 50%,var(--accent3) 100%);
+.hero{text-align:center;padding:3.5rem 0 2rem;position:relative}
+.hero-logo{
+  font-size:clamp(3.5rem,11vw,7rem);font-weight:800;letter-spacing:-.05em;line-height:1;
+  background:linear-gradient(135deg,var(--a1) 0%,var(--a2) 45%,var(--a4) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:logoIn .9s cubic-bezier(.16,1,.3,1) both;position:relative;display:inline-block}
-.hero-logo::after{content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:-8px;
-  width:60%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  animation:lineIn 1.2s ease both .4s}
-.hero-sub{margin-top:1.2rem;font-size:13px;color:var(--text2);letter-spacing:.1em;text-transform:uppercase;
-  animation:fadeUp .8s ease both .3s}
-.hero-badge{display:inline-flex;align-items:center;gap:6px;margin-top:1rem;
-  background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.15);
-  border-radius:100px;padding:5px 14px;font-size:11px;color:var(--accent);letter-spacing:.05em;
-  animation:fadeUp .8s ease both .5s}
-.hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--accent3);
-  box-shadow:0 0 8px var(--accent3);animation:pulse 2s ease infinite}
+  animation:logoIn 1s cubic-bezier(.16,1,.3,1) both;display:inline-block;position:relative;
+  filter:drop-shadow(0 0 40px rgba(191,0,255,.35))}
+.hero-logo::after{content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:-6px;
+  width:55%;height:2px;background:linear-gradient(90deg,transparent,var(--a1),var(--a2),transparent);
+  border-radius:2px;animation:lineIn 1.4s ease both .5s;box-shadow:0 0 12px var(--a1)}
+.hero-sub{margin-top:1.4rem;font-size:13px;color:var(--text2);letter-spacing:.15em;text-transform:uppercase;animation:fadeUp .8s ease both .35s}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;margin-top:.9rem;
+  background:rgba(255,45,120,.07);border:1px solid rgba(255,45,120,.2);
+  border-radius:100px;padding:5px 16px;font-size:11px;color:var(--a1);letter-spacing:.06em;
+  animation:fadeUp .8s ease both .55s;box-shadow:0 0 20px rgba(255,45,120,.08)}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--a3);
+  box-shadow:0 0 8px var(--a3),0 0 16px var(--a3);animation:dotPulse 1.8s ease infinite}
+@keyframes dotPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.6);opacity:.4}}
 
 /* github */
 .github-link{position:absolute;top:0;right:0;display:flex;align-items:center;gap:7px;
   padding:7px 14px;border:1px solid var(--border2);border-radius:10px;
   color:var(--text2);font-size:12px;text-decoration:none;transition:all .2s;
-  background:rgba(10,15,26,.8);backdrop-filter:blur(8px)}
-.github-link:hover{color:var(--text);border-color:var(--accent);box-shadow:var(--glow)}
-.github-link svg{width:16px;height:16px;fill:currentColor;flex-shrink:0}
+  background:rgba(16,12,30,.85);backdrop-filter:blur(10px)}
+.github-link:hover{color:var(--a1);border-color:var(--a1);box-shadow:var(--glow1)}
+.github-link svg{width:15px;height:15px;fill:currentColor;flex-shrink:0}
 
-/* ── section ── */
-.section{margin-top:1.5rem;animation:fadeUp .7s ease both}
-.section:nth-child(1){animation-delay:.1s}
-.section:nth-child(2){animation-delay:.2s}
-.section:nth-child(3){animation-delay:.3s}
-
-.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:.75rem}
-.sec-num{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));
-  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;flex-shrink:0}
-.sec-title{font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text)}
-.sec-desc{font-size:11px;color:var(--text3);margin-top:2px}
+/* ── tabs ── */
+.tabs{display:flex;gap:3px;background:rgba(13,8,24,.9);padding:4px;border-radius:14px;
+  border:1px solid var(--border);margin-bottom:1.1rem;backdrop-filter:blur(8px)}
+.tab{flex:1;padding:9px 6px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;cursor:pointer;border-radius:11px;transition:all .22s;color:var(--text3);user-select:none}
+.tab:hover{color:var(--text2)}
+.tab.active{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;
+  box-shadow:0 0 20px rgba(255,45,120,.3),inset 0 1px 0 rgba(255,255,255,.15)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeUp .4s ease both}
 
 /* ── card ── */
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem;
-  position:relative;overflow:hidden;transition:border-color .2s}
-.card::before{content:'';position:absolute;inset:0;border-radius:16px;
-  background:linear-gradient(135deg,rgba(0,212,255,.03) 0%,transparent 60%);pointer-events:none}
+  position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,45,120,.15),rgba(191,0,255,.15),transparent)}
 .card:hover{border-color:var(--border2)}
 
-/* ── label ── */
-.lbl{font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+/* ── labels ── */
+.lbl{font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--a1);box-shadow:0 0 6px var(--a1)}
+.dot-cyan{background:var(--a4);box-shadow:0 0 6px var(--a4)}
+.dot-orange{background:var(--a3);box-shadow:0 0 6px var(--a3)}
 
 /* ── inputs ── */
 textarea,input[type=text]{
-  width:100%;background:#050912;border:1px solid var(--border);border-radius:10px;
+  width:100%;background:rgba(7,4,15,.8);border:1px solid var(--border);border-radius:10px;
   padding:10px 13px;font-family:var(--mono);font-size:12px;color:var(--text);
-  resize:vertical;line-height:1.65;outline:none;transition:border-color .2s,box-shadow .2s;
-  appearance:none}
-textarea:focus,input[type=text]:focus{border-color:rgba(0,212,255,.4);box-shadow:0 0 0 3px rgba(0,212,255,.06)}
+  resize:vertical;line-height:1.7;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none}
+textarea:focus,input[type=text]:focus{border-color:rgba(191,0,255,.4);box-shadow:0 0 0 3px rgba(191,0,255,.08)}
 textarea::placeholder,input::placeholder{color:var(--text3)}
 input[type=text]{resize:none}
 
@@ -102,167 +122,186 @@ input[type=text]{resize:none}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:1rem}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;
   border:1px solid var(--border2);background:transparent;color:var(--text);font-size:12px;
-  cursor:pointer;transition:all .18s;font-family:var(--font);font-weight:500;letter-spacing:.02em;white-space:nowrap}
-.btn:hover{background:var(--card2);border-color:var(--accent);color:var(--accent);box-shadow:var(--glow)}
+  cursor:pointer;transition:all .18s;font-family:var(--font);font-weight:600;white-space:nowrap}
+.btn:hover{background:var(--card2);border-color:var(--a2);color:var(--a2);box-shadow:var(--glow2)}
 .btn:active{transform:scale(.96)}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;
-  border:none;font-weight:700}
-.btn-primary:hover{opacity:.88;color:#000;box-shadow:0 0 24px rgba(0,212,255,.35)}
-.btn-green{background:linear-gradient(135deg,var(--accent3),#00a86b);color:#000;border:none;font-weight:700}
-.btn-green:hover{opacity:.88;color:#000;box-shadow:0 0 24px rgba(0,255,157,.35)}
-.btn-purple{background:linear-gradient(135deg,var(--accent2),#4a3480);color:#fff;border:none;font-weight:700}
-.btn-purple:hover{opacity:.88;box-shadow:0 0 24px rgba(123,94,167,.45)}
+.btn-pk{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;border:none}
+.btn-pk:hover{opacity:.85;color:#fff;box-shadow:var(--glow1)}
+.btn-cy{background:linear-gradient(135deg,var(--a4),#007acc);color:#000;border:none}
+.btn-cy:hover{opacity:.85;color:#000;box-shadow:var(--glow3)}
+.btn-or{background:linear-gradient(135deg,var(--a3),#cc4400);color:#fff;border:none}
+.btn-or:hover{opacity:.85;box-shadow:0 0 24px rgba(255,123,0,.4)}
 .btn-sm{padding:5px 12px;font-size:11px;border-radius:7px}
 .err{color:var(--red);font-size:12px;font-family:var(--mono)}
 
-/* ── tabs ── */
-.tabs{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:12px;
-  border:1px solid var(--border);margin-bottom:1rem}
-.tab{flex:1;padding:8px;text-align:center;font-size:12px;font-weight:600;letter-spacing:.04em;
-  text-transform:uppercase;cursor:pointer;border-radius:9px;transition:all .2s;color:var(--text3)}
-.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
-
 /* ── grid ── */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
 @media(max-width:600px){.grid2{grid-template-columns:1fr}}
 
-/* ── output ── */
-.out-section{display:none;animation:fadeUp .5s ease both}
-.stats-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
-.stat{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+/* ── stats bar ── */
+.stats-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.9rem}
+.stat{background:rgba(13,8,24,.9);border:1px solid var(--border);border-radius:8px;
   padding:6px 12px;font-size:11px;color:var(--text2);font-family:var(--mono)}
-.stat b{color:var(--accent);font-weight:600}
-.action-row{display:flex;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
-.scroll-box{max-height:420px;overflow-y:auto}
-.cfg-row{background:#050912;border:1px solid var(--border);border-radius:10px;
-  padding:9px 12px;display:flex;align-items:flex-start;gap:10px;margin-bottom:6px;
-  transition:border-color .15s}
+.stat b{color:var(--a4);font-weight:600}
+
+/* ── output ── */
+.out-section{display:none;animation:fadeUp .5s ease both;margin-top:1.1rem}
+.action-row{display:flex;gap:8px;margin-bottom:.8rem;flex-wrap:wrap}
+.scroll-box{max-height:440px;overflow-y:auto}
+
+/* cfg rows */
+.cfg-row{background:rgba(7,4,15,.9);border:1px solid var(--border);border-radius:10px;
+  padding:9px 12px;display:flex;align-items:flex-start;gap:10px;margin-bottom:5px;transition:border-color .15s}
 .cfg-row:hover{border-color:var(--border2)}
 .cfg-ip{min-width:130px;font-size:10px;color:var(--text3);font-family:var(--mono);padding-top:2px;flex-shrink:0}
-.cfg-text{flex:1;font-family:var(--mono);font-size:11px;color:var(--accent3);word-break:break-all;line-height:1.6}
+.cfg-text{flex:1;font-family:var(--mono);font-size:11px;color:#a8f0c0;word-break:break-all;line-height:1.6}
 .copy-btn{flex-shrink:0;padding:4px 10px;font-size:10px;border:1px solid var(--border2);
-  border-radius:6px;background:transparent;color:var(--text3);cursor:pointer;white-space:nowrap;
+  border-radius:6px;background:transparent;color:var(--text3);cursor:pointer;
   font-family:var(--font);transition:all .15s}
-.copy-btn:hover{background:var(--card2);color:var(--accent);border-color:var(--accent)}
-::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
-
-/* ── ping results ── */
-.ping-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;max-height:500px;overflow-y:auto}
-.ping-card{background:#050912;border:1px solid var(--border);border-radius:10px;padding:10px 12px;transition:all .2s}
-.ping-card:hover{border-color:var(--border2)}
-.ping-ip-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.ping-ip{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)}
-.ping-score-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px}
-.score-a{background:rgba(0,255,157,.15);color:var(--accent3);border:1px solid rgba(0,255,157,.3)}
-.score-b{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.25)}
-.score-c{background:rgba(255,211,42,.1);color:var(--yellow);border:1px solid rgba(255,211,42,.25)}
-.score-d{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.25)}
-.ping-metrics{display:flex;flex-direction:column;gap:4px}
-.metric-row{display:flex;align-items:center;gap:6px}
-.metric-label{font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;width:46px;flex-shrink:0}
-.metric-bar-wrap{flex:1;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden}
-.metric-bar{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.16,1,.3,1)}
-.bar-green{background:linear-gradient(90deg,var(--accent3),#00a86b)}
-.bar-blue{background:linear-gradient(90deg,var(--accent),#0080aa)}
-.bar-yellow{background:linear-gradient(90deg,var(--yellow),#c8900a)}
-.bar-red{background:linear-gradient(90deg,var(--red),#a02030)}
-.metric-val{font-family:var(--mono);font-size:10px;color:var(--text2);min-width:52px;text-align:right}
-.metric-ok{font-size:10px;min-width:52px;text-align:right}
-.ok-yes{color:var(--accent3)}
-.ok-no{color:var(--red)}
-
-/* ── SNI results ── */
-.sni-row{background:#050912;border:1px solid var(--border);border-radius:10px;
-  padding:8px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.sni-domain{flex:1;font-family:var(--mono);font-size:12px;color:var(--text)}
-.sni-badge{font-size:10px;font-weight:600;padding:2px 10px;border-radius:100px}
-.sni-ok{background:rgba(0,255,157,.12);color:var(--accent3);border:1px solid rgba(0,255,157,.3)}
-.sni-fail{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.25)}
-.sni-checking{background:rgba(0,212,255,.08);color:var(--accent);border:1px solid rgba(0,212,255,.2);animation:blink 1s ease infinite}
+.copy-btn:hover{background:var(--card2);color:var(--a1);border-color:var(--a1)}
 
 /* ── progress ── */
-.progress-wrap{background:var(--bg2);border-radius:100px;height:4px;overflow:hidden;margin:.5rem 0}
-.progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--accent),var(--accent3));
-  transition:width .3s ease;width:0%}
-.progress-label{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:4px}
+.progress-wrap{background:rgba(13,8,24,.9);border-radius:100px;height:5px;overflow:hidden;margin:.5rem 0}
+.progress-fill{height:100%;border-radius:100px;
+  background:linear-gradient(90deg,var(--a1),var(--a2),var(--a4));
+  transition:width .3s ease;width:0%;box-shadow:0 0 10px var(--a1)}
+.progress-label{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:5px}
 
-/* ── animations ── */
-@keyframes logoIn{from{opacity:0;transform:translateY(30px) scale(.92)}to{opacity:1;transform:none}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@keyframes lineIn{from{width:0;opacity:0}to{width:60%;opacity:1}}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes float0{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-30px) scale(1.05)}}
-@keyframes float1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-25px,20px) scale(.97)}}
-@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(15px,25px)}}
+/* ── ping cards ── */
+.ping-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px;max-height:520px;overflow-y:auto}
+.ping-card{background:rgba(7,4,15,.9);border:1px solid var(--border);border-radius:12px;padding:11px 13px;transition:all .2s}
+.ping-card:hover{border-color:var(--border2);box-shadow:0 0 20px rgba(191,0,255,.08)}
+.ping-ip-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.ping-ip{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)}
+.score-badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:100px}
+.sc-a{background:rgba(57,255,20,.12);color:#39ff14;border:1px solid rgba(57,255,20,.3)}
+.sc-b{background:rgba(0,229,255,.1);color:var(--a4);border:1px solid rgba(0,229,255,.25)}
+.sc-c{background:rgba(255,183,0,.1);color:var(--yellow);border:1px solid rgba(255,183,0,.25)}
+.sc-d{background:rgba(255,45,90,.1);color:var(--red);border:1px solid rgba(255,45,90,.25)}
+.metric-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.m-lbl{font-size:9px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;width:48px;flex-shrink:0}
+.m-bar-wrap{flex:1;height:3px;background:var(--bg2);border-radius:2px;overflow:hidden}
+.m-bar{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.bar-g{background:linear-gradient(90deg,#39ff14,#00a840)}
+.bar-b{background:linear-gradient(90deg,var(--a4),#0060aa)}
+.bar-y{background:linear-gradient(90deg,var(--yellow),#cc7700)}
+.bar-r{background:linear-gradient(90deg,var(--red),#aa1030)}
+.m-val{font-family:var(--mono);font-size:10px;color:var(--text2);min-width:50px;text-align:right}
+.m-ok{font-size:11px;min-width:16px;text-align:right}
+.ok-y{color:#39ff14}
+.ok-n{color:var(--red)}
 
-/* particles */
-.particle{position:fixed;pointer-events:none;border-radius:50%;z-index:0}
+/* ── SNI Reality Table ── */
+.sni-table-wrap{overflow-x:auto;max-height:520px;overflow-y:auto}
+table.sni-tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+table.sni-tbl thead th{
+  padding:8px 10px;text-align:left;font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap;
+  background:rgba(13,8,24,.95);position:sticky;top:0;z-index:2}
+table.sni-tbl tbody tr{border-bottom:1px solid rgba(37,24,64,.5);transition:background .15s}
+table.sni-tbl tbody tr:hover{background:rgba(37,24,64,.5)}
+table.sni-tbl td{padding:8px 10px;vertical-align:middle;white-space:nowrap}
+.td-rank{color:var(--text2);font-weight:600;text-align:center}
+.td-grade{text-align:center}
+.td-host{color:var(--text);font-weight:500;min-width:200px;white-space:normal}
+.td-cdn{color:var(--text3)}
+.td-ping{text-align:right;font-variant-numeric:tabular-nums}
+.td-jitter{text-align:right;color:var(--text3);font-variant-numeric:tabular-nums}
+.td-h2{text-align:center}
+.td-stable{text-align:center}
+.td-target{color:#a8f0c0;min-width:200px;white-space:normal}
+.td-score{text-align:center}
+.g-a{color:#39ff14}
+.g-b{color:var(--a4)}
+.g-c{color:var(--yellow)}
+.g-d{color:var(--red)}
+.ping-good{color:#39ff14}
+.ping-ok{color:var(--a4)}
+.ping-slow{color:var(--yellow)}
+.ping-bad{color:var(--red)}
+.sni-row-checking td{opacity:.5}
+.check-icon{animation:spin .7s linear infinite;display:inline-block}
+.tbl-btn-row{display:flex;gap:8px;margin-bottom:.8rem;flex-wrap:wrap;align-items:center}
+.top-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;padding:3px 10px;
+  border-radius:100px;font-weight:600;font-family:var(--font)}
+.top-badge.best{background:rgba(57,255,20,.12);color:#39ff14;border:1px solid rgba(57,255,20,.3)}
+.top-badge.good{background:rgba(0,229,255,.1);color:var(--a4);border:1px solid rgba(0,229,255,.25)}
+.top-badge.warn{background:rgba(255,183,0,.1);color:var(--yellow);border:1px solid rgba(255,183,0,.25)}
 
-/* divider */
+/* ── built-in sources panel ── */
+.source-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.6rem}
+.chip{font-size:10px;padding:3px 10px;border-radius:100px;border:1px solid var(--border2);
+  color:var(--text2);cursor:pointer;transition:all .15s;font-family:var(--mono)}
+.chip:hover,.chip.sel{background:rgba(191,0,255,.15);color:var(--a2);border-color:var(--a2)}
+
+/* ── misc ── */
 .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:.75rem 0}
-
-/* footer */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.spinner{width:13px;height:13px;border:2px solid rgba(255,45,120,.2);border-top-color:var(--a1);
+  border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
 .footer{text-align:center;margin-top:3rem;font-size:11px;color:var(--text3);letter-spacing:.05em}
 .footer a{color:var(--text3);text-decoration:none;transition:color .2s}
-.footer a:hover{color:var(--accent)}
+.footer a:hover{color:var(--a1)}
 
-/* spinner */
-.spinner{width:14px;height:14px;border:2px solid rgba(0,212,255,.2);border-top-color:var(--accent);
-  border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
+/* ── animations ── */
+@keyframes logoIn{from{opacity:0;transform:translateY(28px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes lineIn{from{width:0;opacity:0}to{width:55%;opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float0{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,-22px)}}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,18px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(12px,20px)}}
 </style>
 </head>
 <body>
-<canvas id="canvas-bg"></canvas>
-<div class="noise"></div>
+<div class="mesh"></div>
+<div class="scan"></div>
+<canvas id="cvs"></canvas>
+
+<!-- floating orbs -->
+<div style="position:fixed;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(191,0,255,.09),transparent 70%);left:-80px;top:30%;z-index:0;pointer-events:none;animation:float0 9s ease-in-out infinite"></div>
+<div style="position:fixed;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,45,120,.08),transparent 70%);right:-60px;top:10%;z-index:0;pointer-events:none;animation:float1 11s ease-in-out infinite"></div>
+<div style="position:fixed;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.07),transparent 70%);right:10%;bottom:15%;z-index:0;pointer-events:none;animation:float2 13s ease-in-out infinite"></div>
 
 <div class="wrap">
   <!-- HERO -->
   <div class="hero">
     <a class="github-link" href="https://github.com/Onixs50" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
       Onixia
     </a>
     <div class="hero-logo">ONIXIA</div>
     <p class="hero-sub">VLESS Config Studio</p>
-    <div class="hero-badge"><span></span>Advanced Proxy Toolkit</div>
+    <div class="hero-badge"><span class="pulse-dot"></span>Reality-Ready SNI Scanner &amp; Config Toolkit</div>
   </div>
 
-  <!-- TABS -->
+  <!-- MAIN TABS -->
   <div class="tabs" id="mainTabs">
     <div class="tab active" onclick="switchTab('replace')">⇄ Config Editor</div>
     <div class="tab" onclick="switchTab('ping')">⚡ Ping Test</div>
-    <div class="tab" onclick="switchTab('sni')">◈ SNI Check</div>
+    <div class="tab" onclick="switchTab('sni')">◈ SNI Scanner</div>
   </div>
 
-  <!-- ════ TAB: REPLACE ════ -->
+  <!-- ══════════════ TAB: CONFIG EDITOR ══════════════ -->
   <div id="tab-replace" class="tab-panel active">
-    <!-- VLESS config input -->
-    <div class="section">
-      <div class="card">
-        <div class="lbl"><span class="dot"></span>VLESS Config URI</div>
-        <textarea id="cfg" rows="3" placeholder="vless://uuid@example.com:443?encryption=none&security=tls&...#label"></textarea>
-      </div>
+    <div class="card" style="margin-bottom:.9rem">
+      <div class="lbl"><span class="dot"></span>VLESS Config URI</div>
+      <textarea id="cfg" rows="3" placeholder="vless://uuid@example.com:443?encryption=none&security=tls&sni=example.com&...#label"></textarea>
     </div>
 
-    <!-- subtabs -->
-    <div class="tabs" style="margin-top:1rem" id="subTabs">
+    <div class="tabs" id="subTabs">
       <div class="tab active" onclick="switchSubTab('ip-tab')">Replace IP</div>
       <div class="tab" onclick="switchSubTab('sni-tab')">Replace SNI</div>
     </div>
 
     <div id="ip-tab" class="tab-panel active">
       <div class="card">
-        <div class="lbl"><span class="dot"></span>IP List — paste anything, IPs extracted automatically (unlimited)</div>
-        <textarea id="ips" rows="10" style="min-height:160px" placeholder="  32  205.251.253.51   529ms 2964ms  ✔&#10;  33  13.249.170.161   500ms&#10;76.76.21.48&#10;76.76.22.105&#10;&#10;Any format works — just needs to contain IPs somewhere"></textarea>
+        <div class="lbl"><span class="dot-cyan dot"></span>IP List — paste anything, IPs auto-extracted (unlimited)</div>
+        <textarea id="ips" rows="9" style="min-height:150px" placeholder="205.251.253.51   529ms&#10;13.249.170.161   500ms&#10;76.76.21.48&#10;76.76.22.105&#10;...any format works"></textarea>
       </div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="generateIP()">→ Generate Configs</button>
+        <button class="btn btn-pk" onclick="generateIP()">→ Generate Configs</button>
         <button class="btn" onclick="clearAll()">✕ Clear</button>
         <span id="ip-err" class="err"></span>
       </div>
@@ -270,35 +309,34 @@ input[type=text]{resize:none}
 
     <div id="sni-tab" class="tab-panel">
       <div class="card">
-        <div class="lbl"><span class="dot"></span>New SNI (host) — one per line (unlimited)</div>
-        <textarea id="snis" rows="10" style="min-height:160px" placeholder="cdn.cloudflare.com&#10;speed.cloudflare.com&#10;example.com&#10;workers.dev&#10;..."></textarea>
+        <div class="lbl"><span class="dot-orange dot"></span>New SNI — one domain per line (unlimited)</div>
+        <textarea id="snis" rows="9" style="min-height:150px" placeholder="cdn.cloudflare.com&#10;speed.cloudflare.com&#10;www.wikipedia.org&#10;dl.google.com&#10;..."></textarea>
       </div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="generateSNI()">→ Generate Configs</button>
+        <button class="btn btn-pk" onclick="generateSNI()">→ Generate Configs</button>
         <button class="btn" onclick="clearSNI()">✕ Clear</button>
         <span id="sni-rep-err" class="err"></span>
       </div>
     </div>
 
-    <!-- output -->
-    <div class="out-section" id="ip-out" style="margin-top:1.25rem">
+    <div class="out-section" id="ip-out">
       <div class="card">
         <div class="stats-bar" id="ip-stats"></div>
         <div class="action-row">
           <button class="btn btn-sm" onclick="copyAll('ip-list')">⎘ Copy All</button>
-          <button class="btn btn-sm" onclick="downloadTxt('ip-list','vless_ip_configs.txt')">↓ Download .txt</button>
+          <button class="btn btn-sm" onclick="downloadTxt('ip-list','vless_ip_configs.txt')">↓ Download</button>
         </div>
         <div class="divider"></div>
         <div class="scroll-box" id="ip-list"></div>
       </div>
     </div>
 
-    <div class="out-section" id="sni-out" style="margin-top:1.25rem">
+    <div class="out-section" id="sni-out">
       <div class="card">
         <div class="stats-bar" id="sni-rep-stats"></div>
         <div class="action-row">
           <button class="btn btn-sm" onclick="copyAll('sni-list')">⎘ Copy All</button>
-          <button class="btn btn-sm" onclick="downloadTxt('sni-list','vless_sni_configs.txt')">↓ Download .txt</button>
+          <button class="btn btn-sm" onclick="downloadTxt('sni-list','vless_sni_configs.txt')">↓ Download</button>
         </div>
         <div class="divider"></div>
         <div class="scroll-box" id="sni-list"></div>
@@ -306,33 +344,25 @@ input[type=text]{resize:none}
     </div>
   </div>
 
-  <!-- ════ TAB: PING ════ -->
+  <!-- ══════════════ TAB: PING TEST ══════════════ -->
   <div id="tab-ping" class="tab-panel">
-    <div class="section">
-      <div class="card">
-        <div class="lbl"><span class="dot"></span>IP List to Test</div>
-        <textarea id="ping-ips" rows="6" placeholder="Paste IPs — extracted automatically&#10;76.76.21.48&#10;205.251.253.51&#10;..."></textarea>
-      </div>
+    <div class="card" style="margin-bottom:.9rem">
+      <div class="lbl"><span class="dot"></span>IP List to Test</div>
+      <textarea id="ping-ips" rows="6" placeholder="Paste IPs — extracted automatically&#10;76.76.21.48&#10;205.251.253.51..."></textarea>
     </div>
-    <div class="grid2">
-      <div class="card">
-        <div class="lbl"><span class="dot"></span>Port (optional)</div>
-        <input type="text" id="ping-port" value="443" placeholder="443">
-      </div>
-      <div class="card">
-        <div class="lbl"><span class="dot"></span>Timeout ms</div>
-        <input type="text" id="ping-timeout" value="5000" placeholder="5000">
-      </div>
+    <div class="grid2" style="margin-bottom:.9rem">
+      <div class="card"><div class="lbl"><span class="dot-cyan dot"></span>Port</div>
+        <input type="text" id="ping-port" value="443"></div>
+      <div class="card"><div class="lbl"><span class="dot-orange dot"></span>Timeout ms</div>
+        <input type="text" id="ping-timeout" value="5000"></div>
     </div>
-
     <div class="btn-row">
-      <button class="btn btn-green" onclick="runPing('quick')"><span id="q-spin"></span>⚡ Quick Scan</button>
-      <button class="btn btn-purple" onclick="runPing('deep')"><span id="d-spin"></span>🔬 Deep Analysis</button>
+      <button class="btn btn-cy" onclick="runPing('quick')"><span id="q-spin"></span>⚡ Quick Scan</button>
+      <button class="btn btn-or" onclick="runPing('deep')"><span id="d-spin"></span>🔬 Deep Analysis</button>
       <button class="btn" onclick="stopPing()">■ Stop</button>
       <span id="ping-err" class="err"></span>
     </div>
-
-    <div class="out-section" id="ping-out" style="margin-top:1.25rem">
+    <div class="out-section" id="ping-out">
       <div class="card">
         <div class="stats-bar" id="ping-stats"></div>
         <div class="progress-wrap"><div class="progress-fill" id="ping-progress"></div></div>
@@ -343,80 +373,76 @@ input[type=text]{resize:none}
     </div>
   </div>
 
-  <!-- ════ TAB: SNI CHECK ════ -->
+  <!-- ══════════════ TAB: SNI SCANNER ══════════════ -->
   <div id="tab-sni" class="tab-panel">
-    <div class="section">
-      <div class="card">
-        <div class="lbl"><span class="dot"></span>Domain / SNI List — one per line</div>
-        <textarea id="sni-check-list" rows="8" placeholder="cdn.cloudflare.com&#10;speed.cloudflare.com&#10;example.workers.dev&#10;yourdomain.com&#10;..."></textarea>
+    <div class="card" style="margin-bottom:.9rem">
+      <div class="lbl"><span class="dot"></span>Paste Domains / SNI List — or pick from built-in sources below</div>
+      <textarea id="sni-raw-input" rows="6" placeholder="Paste any format — domains extracted automatically&#10;www.wikipedia.org&#10;cdn.jsdelivr.net:443&#10;  #5  developers.cloudflare.com  138ms  ✔&#10;...table/list/plain — anything works"></textarea>
+      <div style="margin-top:.8rem">
+        <div class="lbl" style="margin-bottom:6px"><span class="dot-orange dot"></span>Built-in Source Libraries — click to add</div>
+        <div class="source-chips" id="source-chips"></div>
       </div>
     </div>
-    <div class="grid2">
-      <div class="card">
-        <div class="lbl"><span class="dot"></span>Test Via IP (optional)</div>
-        <input type="text" id="sni-via-ip" placeholder="e.g. 76.76.21.48">
-      </div>
-      <div class="card">
-        <div class="lbl"><span class="dot"></span>Port</div>
-        <input type="text" id="sni-port" value="443" placeholder="443">
-      </div>
+    <div class="grid2" style="margin-bottom:.9rem">
+      <div class="card"><div class="lbl"><span class="dot-cyan dot"></span>Test via IP (optional)</div>
+        <input type="text" id="sni-via-ip" placeholder="e.g. 76.76.21.48"></div>
+      <div class="card"><div class="lbl"><span class="dot-orange dot"></span>Port</div>
+        <input type="text" id="sni-port" value="443"></div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="runSNICheck()"><span id="sni-spin"></span>◈ Check All Domains</button>
+      <button class="btn btn-pk" onclick="runSNIScan()"><span id="sni-spin"></span>◈ Scan All Domains</button>
       <button class="btn" onclick="stopSNI()">■ Stop</button>
-      <span id="sni-check-err" class="err"></span>
+      <button class="btn btn-sm" onclick="clearSNIScan()">✕ Clear</button>
+      <span id="sni-err" class="err"></span>
     </div>
 
-    <div class="out-section" id="sni-check-out" style="margin-top:1.25rem">
+    <div class="out-section" id="sni-out2">
       <div class="card">
-        <div class="stats-bar" id="sni-check-stats"></div>
-        <div class="progress-wrap"><div class="progress-fill" id="sni-progress"></div></div>
-        <div class="progress-label" id="sni-label"></div>
+        <div class="stats-bar" id="sni-stats2"></div>
+        <div class="progress-wrap"><div class="progress-fill" id="sni-prog"></div></div>
+        <div class="progress-label" id="sni-lbl"></div>
         <div class="divider"></div>
-        <div class="scroll-box" id="sni-check-results"></div>
+        <div class="tbl-btn-row">
+          <button class="btn btn-sm" onclick="exportSNITable()">↓ Export Table</button>
+          <button class="btn btn-sm" onclick="copySNITop()">⎘ Copy Top SNIs</button>
+        </div>
+        <div class="sni-table-wrap">
+          <table class="sni-tbl" id="sni-tbl">
+            <thead><tr>
+              <th>Rank</th><th>Grade</th><th>Host</th><th>CDN</th>
+              <th>Avg Ping</th><th>Jitter</th><th>H2</th><th>TLS</th>
+              <th>Stable</th><th>Score</th><th>Target</th>
+            </tr></thead>
+            <tbody id="sni-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="footer">
-    <p>Built by <a href="https://github.com/Onixs50" target="_blank">Onixia</a> &nbsp;·&nbsp; VLESS Config Studio</p>
+    Built by <a href="https://github.com/Onixs50" target="_blank">Onixia</a> &nbsp;·&nbsp; VLESS Config Studio
   </div>
 </div>
 
 <script>
 // ── canvas particles ──
 (function(){
-  const c=document.getElementById('canvas-bg');
-  const ctx=c.getContext('2d');
-  let W=0,H=0,pts=[];
-  const N=80;
+  const c=document.getElementById('cvs'),ctx=c.getContext('2d');
+  let W,H,pts=[];const N=70;
   function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
-  function init(){
-    pts=[];
-    for(let i=0;i<N;i++) pts.push({
-      x:Math.random()*W,y:Math.random()*H,
-      vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,
-      r:Math.random()*1.5+.5,
-      o:Math.random()*.5+.1
-    });
-  }
+  function init(){pts=[];for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.2+.4,o:Math.random()*.4+.1})}
   function draw(){
     ctx.clearRect(0,0,W,H);
     for(let i=0;i<N;i++){
-      const p=pts[i];
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
-      if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      const p=pts[i];p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
       ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(0,212,255,${p.o})`;ctx.fill();
+      ctx.fillStyle=`rgba(191,0,255,${p.o})`;ctx.fill();
       for(let j=i+1;j<N;j++){
-        const q=pts[j];
-        const dx=p.x-q.x,dy=p.y-q.y;
-        const d=Math.sqrt(dx*dx+dy*dy);
-        if(d<120){
-          ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
-          ctx.strokeStyle=`rgba(0,212,255,${.08*(1-d/120)})`;ctx.lineWidth=.5;ctx.stroke();
-        }
+        const q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<110){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
+          ctx.strokeStyle=`rgba(255,45,120,${.07*(1-d/110)})`;ctx.lineWidth=.4;ctx.stroke();}
       }
     }
     requestAnimationFrame(draw);
@@ -425,26 +451,10 @@ input[type=text]{resize:none}
   resize();init();draw();
 })();
 
-// ── floating bg orbs ──
-(function(){
-  const colors=['rgba(0,212,255,.06)','rgba(123,94,167,.07)','rgba(0,255,157,.04)'];
-  const sizes=[300,220,180];
-  const positions=[['-10%','60%'],['80%','-5%'],['40%','80%']];
-  colors.forEach((c,i)=>{
-    const d=document.createElement('div');
-    Object.assign(d.style,{
-      position:'fixed',width:sizes[i]+'px',height:sizes[i]+'px',
-      borderRadius:'50%',background:`radial-gradient(circle,${c},transparent 70%)`,
-      left:positions[i][0],top:positions[i][1],zIndex:0,pointerEvents:'none',
-      animation:`float${i} ${7+i*2}s ease-in-out infinite`
-    });
-    document.body.appendChild(d);
-  });
-})();
-
-// ── TAB LOGIC ──
+// ── tab logic ──
 function switchTab(id){
-  document.querySelectorAll('#mainTabs .tab').forEach((t,i)=>t.classList.toggle('active',['replace','ping','sni'][i]===id));
+  const names=['replace','ping','sni'];
+  document.querySelectorAll('#mainTabs .tab').forEach((t,i)=>t.classList.toggle('active',names[i]===id));
   document.querySelectorAll('[id^="tab-"]').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
 }
@@ -454,358 +464,330 @@ function switchSubTab(id){
   document.getElementById(id).classList.add('active');
 }
 
-// ── VLESS PARSE ──
+// ── helpers ──
 const IP_RE=/\b(\d{1,3}\.){3}\d{1,3}\b/g;
-let ipConfigs=[],sniConfigs=[];
-
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function extractIPs(raw){
   const all=raw.match(IP_RE)||[];
   return[...new Set(all)].filter(ip=>ip.split('.').every(p=>{const n=+p;return n>=0&&n<=255;}));
 }
-function parseDomains(raw){
-  return[...new Set(raw.split('\n').map(s=>s.trim()).filter(s=>s&&!IP_RE.test(s)&&s.includes('.')))];
+function extractDomains(raw){
+  const lines=raw.split(/[\n,;]+/);
+  const domRe=/([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}/g;
+  const found=new Set();
+  lines.forEach(line=>{
+    const ms=line.match(domRe)||[];
+    ms.forEach(m=>{if(!IP_RE.test(m))found.add(m.toLowerCase().replace(/:.*$/,''));});
+  });
+  return[...found];
 }
 
+// ── VLESS parse/build ──
+let ipConfigs=[],sniConfigs=[];
 function parseVless(uri){
-  uri=uri.trim();
-  if(!uri.startsWith('vless://'))return null;
-  const body=uri.slice(8);
-  const at=body.indexOf('@');
-  if(at<0)return null;
-  const uuid=body.slice(0,at);
-  let rest=body.slice(at+1);
-  const hi=rest.lastIndexOf('#');
-  const name=hi>=0?rest.slice(hi+1):'';
+  uri=uri.trim();if(!uri.startsWith('vless://'))return null;
+  const body=uri.slice(8),at=body.indexOf('@');if(at<0)return null;
+  const uuid=body.slice(0,at);let rest=body.slice(at+1);
+  const hi=rest.lastIndexOf('#'),name=hi>=0?rest.slice(hi+1):'';
   rest=hi>=0?rest.slice(0,hi):rest;
-  const qi=rest.indexOf('?');
-  const hp=qi>=0?rest.slice(0,qi):rest;
-  const ps=qi>=0?rest.slice(qi+1):'';
-  const ci=hp.lastIndexOf(':');
-  const host=ci>=0?hp.slice(0,ci):hp;
-  const port=ci>=0?hp.slice(ci+1):'443';
-  return{uuid,host,port,params:ps,name,raw:uri};
+  const qi=rest.indexOf('?'),hp=qi>=0?rest.slice(0,qi):rest,ps=qi>=0?rest.slice(qi+1):'';
+  const ci=hp.lastIndexOf(':'),host=ci>=0?hp.slice(0,ci):hp,port=ci>=0?hp.slice(ci+1):'443';
+  return{uuid,host,port,params:ps,name};
 }
-
 function buildVless(cfg,newHost,newSNI){
   let ps=cfg.params;
   if(newSNI){
-    ps=ps.replace(/sni=[^&]*/g,'').replace(/host=[^&]*/g,'').replace(/&&/g,'&').replace(/^&|&$/g,'');
+    ps=ps.replace(/sni=[^&]*/g,'').replace(/host=[^&]*/g,'').replace(/&&+/g,'&').replace(/^&|&$/g,'');
     ps=(ps?ps+'&':'')+`sni=${newSNI}&host=${newSNI}`;
   }
-  const psStr=ps?'?'+ps:'';
-  const nm=cfg.name?'#'+cfg.name:'';
-  return`vless://${cfg.uuid}@${newHost}:${cfg.port}${psStr}${nm}`;
+  return`vless://${cfg.uuid}@${newHost}:${cfg.port}${ps?'?'+ps:''}${cfg.name?'#'+cfg.name:''}`;
 }
-
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-
-function renderList(listId,rows){
-  const el=document.getElementById(listId);
-  el.innerHTML='';
+function renderList(id,rows){
+  const el=document.getElementById(id);el.innerHTML='';
   rows.forEach(({label,uri},i)=>{
     const d=document.createElement('div');d.className='cfg-row';
-    d.innerHTML=`<span class="cfg-ip">${esc(label)}</span>
-      <span class="cfg-text" id="${listId}-ct${i}">${esc(uri)}</span>
-      <button class="copy-btn" onclick="copySingle('${listId}',${i},this)">copy</button>`;
+    d.innerHTML=`<span class="cfg-ip">${esc(label)}</span><span class="cfg-text" id="${id}-ct${i}">${esc(uri)}</span><button class="copy-btn" onclick="copySingle('${id}',${i},this)">copy</button>`;
     el.appendChild(d);
   });
 }
-
 function generateIP(){
   const err=document.getElementById('ip-err');err.textContent='';
-  const cfgRaw=document.getElementById('cfg').value.trim();
-  const ipsRaw=document.getElementById('ips').value;
-  if(!cfgRaw){err.textContent='Paste a vless:// config.';return;}
-  const cfg=parseVless(cfgRaw);
-  if(!cfg){err.textContent='Could not parse — must start with vless://';return;}
-  const ips=extractIPs(ipsRaw);
+  const cfg=parseVless(document.getElementById('cfg').value.trim());
+  if(!cfg){err.textContent='Paste a valid vless:// config.';return;}
+  const ips=extractIPs(document.getElementById('ips').value);
   if(!ips.length){err.textContent='No valid IPs found.';return;}
   ipConfigs=ips.map(ip=>({label:ip,uri:buildVless(cfg,ip,null)}));
-  document.getElementById('ip-stats').innerHTML=
-    `<div class="stat">IPs: <b>${ips.length}</b></div>
-     <div class="stat">Configs: <b>${ipConfigs.length}</b></div>
-     <div class="stat">Original host: <b>${esc(cfg.host)}</b></div>`;
+  document.getElementById('ip-stats').innerHTML=`<div class="stat">IPs: <b>${ips.length}</b></div><div class="stat">Original: <b>${esc(cfg.host)}</b></div>`;
   renderList('ip-list',ipConfigs);
-  const out=document.getElementById('ip-out');out.style.display='block';
-  out.scrollIntoView({behavior:'smooth',block:'start'});
+  show('ip-out');
 }
-
 function generateSNI(){
   const err=document.getElementById('sni-rep-err');err.textContent='';
-  const cfgRaw=document.getElementById('cfg').value.trim();
-  const raw=document.getElementById('snis').value;
-  if(!cfgRaw){err.textContent='Paste a vless:// config.';return;}
-  const cfg=parseVless(cfgRaw);
-  if(!cfg){err.textContent='Could not parse — must start with vless://';return;}
-  const domains=raw.split('\n').map(s=>s.trim()).filter(Boolean);
-  if(!domains.length){err.textContent='No SNI domains entered.';return;}
+  const cfg=parseVless(document.getElementById('cfg').value.trim());
+  if(!cfg){err.textContent='Paste a valid vless:// config.';return;}
+  const domains=document.getElementById('snis').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!domains.length){err.textContent='No domains entered.';return;}
   sniConfigs=domains.map(d=>({label:d,uri:buildVless(cfg,cfg.host,d)}));
-  document.getElementById('sni-rep-stats').innerHTML=
-    `<div class="stat">Domains: <b>${domains.length}</b></div>
-     <div class="stat">Configs: <b>${sniConfigs.length}</b></div>`;
+  document.getElementById('sni-rep-stats').innerHTML=`<div class="stat">Domains: <b>${domains.length}</b></div>`;
   renderList('sni-list',sniConfigs);
-  const out=document.getElementById('sni-out');out.style.display='block';
-  out.scrollIntoView({behavior:'smooth',block:'start'});
+  show('sni-out');
 }
-
-function clearAll(){
-  document.getElementById('cfg').value='';
-  document.getElementById('ips').value='';
-  document.getElementById('ip-err').textContent='';
-  document.getElementById('ip-out').style.display='none';
-  ipConfigs=[];
-}
-function clearSNI(){
-  document.getElementById('snis').value='';
-  document.getElementById('sni-rep-err').textContent='';
-  document.getElementById('sni-out').style.display='none';
-  sniConfigs=[];
-}
-
+function clearAll(){document.getElementById('cfg').value='';document.getElementById('ips').value='';document.getElementById('ip-err').textContent='';document.getElementById('ip-out').style.display='none';ipConfigs=[];}
+function clearSNI(){document.getElementById('snis').value='';document.getElementById('sni-rep-err').textContent='';document.getElementById('sni-out').style.display='none';sniConfigs=[];}
 function copySingle(listId,i,btn){
   const arr=listId==='ip-list'?ipConfigs:sniConfigs;
-  navigator.clipboard.writeText(arr[i].uri).then(()=>{
-    const o=btn.textContent;btn.textContent='✓';
-    setTimeout(()=>{btn.textContent=o;},1500);
-  });
+  navigator.clipboard.writeText(arr[i].uri).then(()=>{const o=btn.textContent;btn.textContent='✓';setTimeout(()=>btn.textContent=o,1500);});
 }
-function copyAll(listId){
-  const arr=listId==='ip-list'?ipConfigs:sniConfigs;
-  navigator.clipboard.writeText(arr.map(c=>c.uri).join('\n')).then(()=>{});
-}
+function copyAll(listId){navigator.clipboard.writeText((listId==='ip-list'?ipConfigs:sniConfigs).map(c=>c.uri).join('\n'));}
 function downloadTxt(listId,fname){
-  const arr=listId==='ip-list'?ipConfigs:sniConfigs;
-  const b=new Blob([arr.map(c=>c.uri).join('\n')],{type:'text/plain'});
+  const b=new Blob([(listId==='ip-list'?ipConfigs:sniConfigs).map(c=>c.uri).join('\n')],{type:'text/plain'});
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fname;a.click();
 }
+function show(id){const el=document.getElementById(id);el.style.display='block';el.scrollIntoView({behavior:'smooth',block:'start'});}
 
-// ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // ── PING ENGINE ──
-// ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 let pingStop=false;
-const PROBES=[
-  {id:'icmp',label:'ICMP',method:'fetch_http',desc:'Basic connectivity'},
-  {id:'tcp',label:'TCP',method:'tcp_like',desc:'TCP port open'},
-  {id:'http',label:'HTTP',method:'fetch_http',desc:'HTTP response'},
-  {id:'https',label:'HTTPS/TLS',method:'fetch_https',desc:'TLS handshake'},
-  {id:'cdn',label:'CDN',method:'cdn',desc:'CDN header detection'},
-  {id:'header',label:'Header',method:'header',desc:'Server header info'},
-  {id:'latency',label:'Latency',method:'latency',desc:'Avg round-trip'},
-];
-
+async function tf(url,to){
+  const ac=new AbortController();const tid=setTimeout(()=>ac.abort(),to);const t=Date.now();
+  try{const r=await fetch(url,{signal:ac.signal,mode:'no-cors'});clearTimeout(tid);return{ok:true,ms:Date.now()-t,status:r.status};}
+  catch(e){clearTimeout(tid);return{ok:e.name!=='AbortError',ms:Date.now()-t,err:e.message};}
+}
 async function probeIP(ip,port,timeout,deep){
-  const to=parseInt(timeout)||5000;
-  const url443=`https://${ip}:${port}/`;
-  const t0=Date.now();
-  const res={ip,status:'ok',probes:{},score:0,lat:null};
-
-  // helper: timed fetch with AbortController
-  async function tf(url,opts={}){
-    const ac=new AbortController();
-    const tid=setTimeout(()=>ac.abort(),to);
-    const t=Date.now();
-    try{
-      const r=await fetch(url,{...opts,signal:ac.signal,mode:'no-cors'});
-      clearTimeout(tid);return{ok:true,ms:Date.now()-t,status:r.status,headers:r.headers};
-    }catch(e){clearTimeout(tid);return{ok:false,ms:Date.now()-t,err:e.message};}
-  }
-
-  // ICMP-like: just a raw fetch
-  const icmp=await tf(`http://${ip}:${port}/`);
-  res.probes.icmp={ok:icmp.ok||icmp.ms<to,ms:icmp.ms};
-  res.lat=icmp.ms;
-
-  // HTTP
-  const http=await tf(`http://${ip}:${port}/`);
+  const to=parseInt(timeout)||5000,res={ip,probes:{},score:0,lat:null};
+  const http=await tf(`http://${ip}:${port}/`,to);res.probes.icmp={ok:http.ok||http.ms<to,ms:http.ms};
   res.probes.http={ok:http.ok,ms:http.ms};
-
-  // HTTPS / TLS
-  const https_=await tf(`https://${ip}:${port}/`);
-  res.probes.https={ok:https_.ok,ms:https_.ms};
-  res.probes.tls={ok:https_.ok,ms:https_.ms};
-
+  const https_=await tf(`https://${ip}:${port}/`,to);
+  res.probes.https={ok:https_.ok,ms:https_.ms};res.probes.tls={ok:https_.ok,ms:https_.ms};
+  res.lat=https_.ms;
   if(deep){
-    // CDN detection (check for cf-ray, x-cache etc headers — limited in no-cors but timing tells a story)
-    const cdn=await tf(`https://${ip}:${port}/`,{headers:{'User-Agent':'Mozilla/5.0'}});
-    res.probes.cdn={ok:cdn.ok,ms:cdn.ms};
-
-    // Header probe — try to get server info
-    const hdr=await tf(`https://${ip}:${port}/`);
-    res.probes.header={ok:hdr.ok,ms:hdr.ms,val:hdr.ok?'responded':'n/a'};
-
-    // Additional latency samples
-    const lats=[];
-    for(let i=0;i<3;i++){
-      const s=await tf(`https://${ip}:${port}/`);
-      lats.push(s.ms);
-    }
-    res.lat=Math.round(lats.reduce((a,b)=>a+b,0)/lats.length);
-    res.probes.latency={ok:res.lat<to,ms:res.lat};
-
-    // TCP-like (via fetch timing)
-    const tcp_=await tf(`http://${ip}:${port}/`);
-    res.probes.tcp={ok:tcp_.ok||tcp_.ms<to*0.6,ms:tcp_.ms};
+    const cdn=await tf(`https://${ip}:${port}/`,to);res.probes.cdn={ok:cdn.ok,ms:cdn.ms};
+    const lats=[];for(let i=0;i<3;i++){const s=await tf(`https://${ip}:${port}/`,to);lats.push(s.ms);}
+    res.lat=Math.round(lats.reduce((a,b)=>a+b,0)/3);res.probes.latency={ok:res.lat<to,ms:res.lat};
+    const tcp=await tf(`http://${ip}:${port}/`,to);res.probes.tcp={ok:tcp.ok||tcp.ms<to*.6,ms:tcp.ms};
+    const hdr=await tf(`https://${ip}:${port}/`,to);res.probes.header={ok:hdr.ok,ms:hdr.ms};
   }
-
-  // Score
-  const pKeys=Object.keys(res.probes);
-  const okCount=pKeys.filter(k=>res.probes[k].ok).length;
-  res.score=Math.round((okCount/pKeys.length)*100);
+  const pks=Object.keys(res.probes);res.score=Math.round(pks.filter(k=>res.probes[k].ok).length/pks.length*100);
   return res;
 }
-
-function scoreLetter(s){return s>=80?'A':s>=60?'B':s>=40?'C':'D'}
-function barClass(ms){return ms<300?'bar-green':ms<800?'bar-blue':ms<2000?'bar-yellow':'bar-red'}
-function barW(ms,max){return Math.min(100,Math.round((ms/max)*100))+'%'}
-
+function scLetter(s){return s>=80?'A':s>=60?'B':s>=40?'C':'D'}
+function barCls(ms){return ms<300?'bar-g':ms<800?'bar-b':ms<2000?'bar-y':'bar-r'}
+function barW(ms,max){return Math.min(100,Math.round(ms/max*100))+'%'}
 function renderPingCard(r,deep){
-  const sc=scoreLetter(r.score);
-  const maxMs=deep?10000:5000;
+  const sc=scLetter(r.score);
+  const order=deep?['icmp','tcp','http','tls','https','cdn','header','latency']:['icmp','http','https','tls'];
   let rows='';
-  const probeOrder=deep?['icmp','tcp','http','tls','https','cdn','header','latency']:['icmp','http','https','tls'];
-  probeOrder.forEach(k=>{
-    const p=r.probes[k];
-    if(!p)return;
-    const bw=barW(p.ms,maxMs);
-    const bc=barClass(p.ms);
-    rows+=`<div class="metric-row">
-      <span class="metric-label">${k.toUpperCase()}</span>
-      <div class="metric-bar-wrap"><div class="metric-bar ${bc}" style="width:0%" data-w="${bw}"></div></div>
-      <span class="metric-val">${p.ms}ms</span>
-      <span class="metric-ok ${p.ok?'ok-yes':'ok-no'}">${p.ok?'✓':'✗'}</span>
-    </div>`;
+  order.forEach(k=>{const p=r.probes[k];if(!p)return;
+    rows+=`<div class="metric-row"><span class="m-lbl">${k.toUpperCase()}</span>
+    <div class="m-bar-wrap"><div class="m-bar ${barCls(p.ms)}" style="width:0%" data-w="${barW(p.ms,deep?8000:4000)}"></div></div>
+    <span class="m-val">${p.ms}ms</span><span class="m-ok ${p.ok?'ok-y':'ok-n'}">${p.ok?'✓':'✗'}</span></div>`;
   });
-  return`<div class="ping-card">
-    <div class="ping-ip-row">
-      <span class="ping-ip">${r.ip}</span>
-      <span class="ping-score-badge score-${sc.toLowerCase()}">${sc} ${r.score}%</span>
-    </div>
-    <div class="ping-metrics">${rows}</div>
-  </div>`;
+  return`<div class="ping-card"><div class="ping-ip-row"><span class="ping-ip">${r.ip}</span>
+    <span class="score-badge sc-${sc.toLowerCase()}">${sc} ${r.score}%</span></div>
+    <div>${rows}</div></div>`;
 }
-
 async function runPing(mode){
-  if(pingStop)pingStop=false;
-  const ipsRaw=document.getElementById('ping-ips').value;
+  pingStop=false;const err=document.getElementById('ping-err');err.textContent='';
+  const ips=extractIPs(document.getElementById('ping-ips').value);
+  if(!ips.length){err.textContent='No valid IPs.';return;}
   const port=document.getElementById('ping-port').value||'443';
   const timeout=document.getElementById('ping-timeout').value||'5000';
-  const err=document.getElementById('ping-err');err.textContent='';
-  const ips=extractIPs(ipsRaw);
-  if(!ips.length){err.textContent='No valid IPs found.';return;}
-
-  const deep=mode==='deep';
-  const spinId=deep?'d-spin':'q-spin';
+  const deep=mode==='deep',spinId=deep?'d-spin':'q-spin';
   document.getElementById(spinId).innerHTML='<span class="spinner"></span> ';
-  pingStop=false;
-
-  const out=document.getElementById('ping-out');out.style.display='block';
+  show('ping-out');
   const grid=document.getElementById('ping-results');grid.innerHTML='';
-  const prog=document.getElementById('ping-progress');
-  const lbl=document.getElementById('ping-label');
+  const prog=document.getElementById('ping-progress'),lbl=document.getElementById('ping-label');
   const statsEl=document.getElementById('ping-stats');
-  statsEl.innerHTML=`<div class="stat">IPs: <b>${ips.length}</b></div><div class="stat">Mode: <b>${deep?'Deep Analysis':'Quick Scan'}</b></div>`;
-
-  let done=0,ok=0,total=ips.length;
+  statsEl.innerHTML=`<div class="stat">IPs: <b>${ips.length}</b></div><div class="stat">Mode: <b>${deep?'Deep':'Quick'}</b></div>`;
+  let done=0,ok=0;
   for(const ip of ips){
     if(pingStop)break;
-    lbl.textContent=`Testing ${ip}… (${done}/${total})`;
-    prog.style.width=`${Math.round((done/total)*100)}%`;
-    try{
-      const r=await probeIP(ip,port,timeout,deep);
-      if(r.score>0)ok++;
-      const tmp=document.createElement('div');
-      tmp.innerHTML=renderPingCard(r,deep);
-      grid.appendChild(tmp.firstElementChild);
-      // animate bars
-      setTimeout(()=>{
-        tmp.firstElementChild?.querySelectorAll('.metric-bar').forEach(b=>{
-          b.style.width=b.dataset.w;
-        });
-      },50);
-    }catch(e){/* skip */}
+    lbl.textContent=`Testing ${ip} (${done}/${ips.length})`;
+    prog.style.width=`${Math.round(done/ips.length*100)}%`;
+    try{const r=await probeIP(ip,port,timeout,deep);if(r.score>0)ok++;
+      const tmp=document.createElement('div');tmp.innerHTML=renderPingCard(r,deep);
+      const card=tmp.firstElementChild;grid.appendChild(card);
+      setTimeout(()=>card.querySelectorAll('.m-bar').forEach(b=>b.style.width=b.dataset.w),60);
+    }catch(e){}
     done++;
   }
-  prog.style.width='100%';
-  lbl.textContent=`Done — ${done} tested, ${ok} reachable`;
-  statsEl.innerHTML+=`<div class="stat">Reachable: <b>${ok}</b></div><div class="stat">Unreachable: <b>${done-ok}</b></div>`;
+  prog.style.width='100%';lbl.textContent=`Done — ${done} tested, ${ok} reachable`;
+  statsEl.innerHTML+=`<div class="stat">Reachable: <b>${ok}</b></div><div class="stat">Failed: <b>${done-ok}</b></div>`;
   document.getElementById(spinId).innerHTML='';
 }
 function stopPing(){pingStop=true;}
 
-// ═══════════════════════════════════════════════════════
-// ── SNI CHECK ENGINE ──
-// ═══════════════════════════════════════════════════════
-let sniStop=false;
+// ══════════════════════════════════════════════════════
+// ── SNI SCANNER ENGINE ──
+// ══════════════════════════════════════════════════════
+let sniStop=false,sniResults=[];
 
-async function checkDomain(domain,viaIP,port,timeout){
-  const to=parseInt(timeout)||5000;
-  const host=viaIP||domain;
-  const url=`https://${host}:${port}/`;
-  const ac=new AbortController();
-  const tid=setTimeout(()=>ac.abort(),to);
-  const t=Date.now();
-  try{
-    await fetch(url,{signal:ac.signal,mode:'no-cors',headers:{'Host':domain}});
-    clearTimeout(tid);
-    return{ok:true,ms:Date.now()-t};
-  }catch(e){
-    clearTimeout(tid);
-    const ms=Date.now()-t;
-    // if aborted = timeout = unreachable; else got some response (even error = domain works)
-    const reachable=e.name!=='AbortError';
-    return{ok:reachable,ms,err:e.message};
-  }
+// ── Built-in domain database by CDN ──
+const SNI_SOURCES={
+  'Cloudflare':['developers.cloudflare.com','www.cloudflare.com','speed.cloudflare.com','blog.cloudflare.com','1.1.1.1','cloudflare.com','community.cloudflare.com'],
+  'Google':['www.google.com','dl.google.com','storage.googleapis.com','fonts.googleapis.com','accounts.google.com','mail.google.com','cdn.google.com'],
+  'Microsoft':['login.microsoftonline.com','outlook.live.com','azure.microsoft.com','cdn.microsoft.com','www.bing.com','office.com','graph.microsoft.com'],
+  'Amazon AWS':['d1.awsstatic.com','aws.amazon.com','s3.amazonaws.com','cloudfront.net','d3.amazonaws.com'],
+  'Fastly':['developer.fastly.com','docs.fastly.com','www.fastly.com'],
+  'jsDelivr':['cdn.jsdelivr.net','data.jsdelivr.com'],
+  'Wikimedia':['www.wikipedia.org','en.wikipedia.org','upload.wikimedia.org','commons.wikimedia.org'],
+  'Netflix':['assets.nflxext.com','static.nflximg.net','nflxso.net'],
+  'Akamai':['dl.delivery.mp.microsoft.com','static.akamaized.net','cdnjs.cloudflare.com'],
+  'Iran CDNs':['cdn.arvancloud.ir','static.cdn.asset.aparat.com','www.digikala.com','www.aparat.com','bcdn.asset.aparat.com'],
+  'GitHub/npm':['raw.githubusercontent.com','avatars.githubusercontent.com','unpkg.com','registry.npmjs.org'],
+  'Twitch/Discord':['discord.com','assets.twitch.tv','cdn.discordapp.com'],
+};
+
+// ── render source chips ──
+(function(){
+  const wrap=document.getElementById('source-chips');
+  Object.keys(SNI_SOURCES).forEach(name=>{
+    const c=document.createElement('span');c.className='chip';c.textContent=name;
+    c.onclick=function(){
+      this.classList.toggle('sel');
+      const ta=document.getElementById('sni-raw-input');
+      const cur=new Set(ta.value.split('\n').map(s=>s.trim()).filter(Boolean));
+      if(this.classList.contains('sel')){SNI_SOURCES[name].forEach(d=>cur.add(d));}
+      else{SNI_SOURCES[name].forEach(d=>cur.delete(d));}
+      ta.value=[...cur].join('\n');
+    };
+    wrap.appendChild(c);
+  });
+})();
+
+// ── CDN guesser ──
+function guessCDN(domain){
+  const d=domain.toLowerCase();
+  if(/cloudflare|1\.1\.1/.test(d))return'Cloudflare';
+  if(/google|googleapis|gstatic|googlevideo/.test(d))return'Google';
+  if(/microsoft|azure|msn|bing|live\.com|office|windows/.test(d))return'Microsoft';
+  if(/amazon|aws|cloudfront|nflx/.test(d))return'Amazon/Netflix';
+  if(/fastly/.test(d))return'Fastly';
+  if(/jsdelivr/.test(d))return'jsDelivr';
+  if(/wikipedia|wikimedia/.test(d))return'Wikimedia';
+  if(/arvancloud|aparat|digikala/.test(d))return'Iran CDN';
+  if(/akamai|akamaized/.test(d))return'Akamai';
+  if(/github|githubusercontent/.test(d))return'GitHub';
+  if(/discord|twitch/.test(d))return'Discord/Twitch';
+  if(/unpkg|npmjs/.test(d))return'npm/unpkg';
+  return'Unknown';
 }
 
-async function runSNICheck(){
+// ── probe a domain for Reality SNI suitability ──
+async function probeSNIDomain(domain,viaIP,port){
+  const to=5000,host=viaIP||domain,p=parseInt(port)||443;
+  const pings=[],t0=Date.now();
+  let tls=false,h2=false,stable=true;
+  // 3 round-trip samples
+  for(let i=0;i<3;i++){
+    const ac=new AbortController();const tid=setTimeout(()=>ac.abort(),to);const ts=Date.now();
+    try{
+      await fetch(`https://${host}:${p}/`,{signal:ac.signal,mode:'no-cors',
+        headers:viaIP?{'Host':domain}:{}});
+      clearTimeout(tid);pings.push(Date.now()-ts);tls=true;
+    }catch(e){clearTimeout(tid);const ms=Date.now()-ts;pings.push(ms);if(e.name!=='AbortError')tls=true;}
+  }
+  const avg=Math.round(pings.reduce((a,b)=>a+b,0)/pings.length);
+  const jitter=Math.round(Math.max(...pings)-Math.min(...pings));
+  // stability: jitter < 100ms
+  stable=jitter<120&&avg<4000;
+  // h2 heuristic: fast TLS response often means h2
+  h2=tls&&avg<600;
+  // score: 0-100
+  let score=0;
+  if(tls)score+=35;
+  if(h2)score+=20;
+  if(stable)score+=20;
+  if(avg<200)score+=25;
+  else if(avg<400)score+=15;
+  else if(avg<800)score+=8;
+  const grade=score>=80?'A':score>=65?'B':score>=50?'C':'D';
+  return{domain,cdn:guessCDN(domain),avg,jitter,tls,h2,stable,score,grade,port:p};
+}
+
+function pingColorClass(ms){return ms<200?'ping-good':ms<400?'ping-ok':ms<800?'ping-slow':'ping-bad'}
+function gradeClass(g){return'g-'+g.toLowerCase()}
+
+function renderSNIRow(r,rank,isNew){
+  const tr=document.createElement('tr');
+  if(isNew)tr.style.animation='fadeUp .4s ease both';
+  const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':('#'+rank);
+  tr.innerHTML=`<td class="td-rank">${medal}</td>
+    <td class="td-grade"><span class="${gradeClass(r.grade)}" style="font-weight:700">${r.grade}</span></td>
+    <td class="td-host" style="color:var(--text)">${esc(r.domain)}</td>
+    <td class="td-cdn" style="font-size:10px">${r.cdn}</td>
+    <td class="td-ping ${pingColorClass(r.avg)}">${r.avg.toFixed(1)}</td>
+    <td class="td-jitter" style="font-size:10px">${r.jitter.toFixed(1)}</td>
+    <td class="td-h2" style="color:${r.h2?'#39ff14':'var(--text3)'}">${r.h2?'✓':'-'}</td>
+    <td class="td-h2" style="color:${r.tls?'#39ff14':'var(--red)'}">${r.tls?'✓':'✗'}</td>
+    <td class="td-stable" style="color:${r.stable?'#39ff14':'var(--yellow)'}">${r.stable?'✓':'~'}</td>
+    <td class="td-score"><span class="score-badge sc-${r.grade.toLowerCase()}">${r.score}%</span></td>
+    <td class="td-target">${esc(r.domain+':'+r.port)}</td>`;
+  return tr;
+}
+
+function rebuildTable(){
+  sniResults.sort((a,b)=>b.score-a.score||(a.avg-b.avg));
+  const tbody=document.getElementById('sni-tbody');tbody.innerHTML='';
+  sniResults.forEach((r,i)=>tbody.appendChild(renderSNIRow(r,i+1,false)));
+}
+
+async function runSNIScan(){
   sniStop=false;
-  const raw=document.getElementById('sni-check-list').value;
+  const raw=document.getElementById('sni-raw-input').value;
   const viaIP=document.getElementById('sni-via-ip').value.trim();
   const port=document.getElementById('sni-port').value||'443';
-  const err=document.getElementById('sni-check-err');err.textContent='';
-  const domains=raw.split('\n').map(s=>s.trim()).filter(Boolean);
-  if(!domains.length){err.textContent='Enter at least one domain.';return;}
-
+  const err=document.getElementById('sni-err');err.textContent='';
+  const domains=extractDomains(raw);
+  if(!domains.length){err.textContent='No domains found. Paste domains or select sources above.';return;}
   document.getElementById('sni-spin').innerHTML='<span class="spinner"></span> ';
-  const out=document.getElementById('sni-check-out');out.style.display='block';
-  const res=document.getElementById('sni-check-results');res.innerHTML='';
-  const prog=document.getElementById('sni-progress');
-  const lbl=document.getElementById('sni-label');
-  const statsEl=document.getElementById('sni-check-stats');
-
-  let done=0,ok=0,total=domains.length;
-  statsEl.innerHTML=`<div class="stat">Domains: <b>${total}</b></div>`;
-
+  sniResults=[];
+  show('sni-out2');
+  document.getElementById('sni-tbody').innerHTML='';
+  const prog=document.getElementById('sni-prog'),lbl=document.getElementById('sni-lbl');
+  const statsEl=document.getElementById('sni-stats2');
+  statsEl.innerHTML=`<div class="stat">Domains: <b>${domains.length}</b></div>`;
+  let done=0;
   for(const d of domains){
     if(sniStop)break;
-    lbl.textContent=`Checking ${d}… (${done}/${total})`;
-    prog.style.width=`${Math.round((done/total)*100)}%`;
-
-    // placeholder row
-    const row=document.createElement('div');row.className='sni-row';
-    row.innerHTML=`<span class="sni-domain">${esc(d)}</span>
-      <span class="sni-badge sni-checking">Checking…</span>
-      <span style="font-size:10px;color:var(--text3);margin-left:8px;font-family:var(--mono)">—</span>`;
-    res.appendChild(row);
-
+    lbl.textContent=`Scanning ${d} (${done}/${domains.length})`;
+    prog.style.width=`${Math.round(done/domains.length*100)}%`;
     try{
-      const r=await checkDomain(d,viaIP,port,5000);
-      if(r.ok)ok++;
-      row.querySelector('.sni-badge').className=`sni-badge ${r.ok?'sni-ok':'sni-fail'}`;
-      row.querySelector('.sni-badge').textContent=r.ok?'Reachable':'Unreachable';
-      row.querySelector('span:last-child').textContent=`${r.ms}ms`;
-    }catch(e){
-      row.querySelector('.sni-badge').className='sni-badge sni-fail';
-      row.querySelector('.sni-badge').textContent='Error';
-    }
+      const r=await probeSNIDomain(d,viaIP,port);
+      sniResults.push(r);
+      rebuildTable();
+    }catch(e){}
     done++;
   }
   prog.style.width='100%';
-  lbl.textContent=`Done — ${done} checked, ${ok} reachable`;
-  statsEl.innerHTML+=`<div class="stat">Reachable: <b>${ok}</b></div><div class="stat">Failed: <b>${done-ok}</b></div>`;
+  const top=sniResults.filter(r=>r.score>=80).length;
+  const good=sniResults.filter(r=>r.score>=60&&r.score<80).length;
+  statsEl.innerHTML=`<div class="stat">Scanned: <b>${done}</b></div>
+    <div class="stat">Grade A: <b>${top}</b></div>
+    <div class="stat">Grade B: <b>${good}</b></div>
+    <div class="stat">Reachable: <b>${sniResults.filter(r=>r.tls).length}</b></div>`;
+  lbl.textContent=`Scan complete — ${done} domains checked`;
   document.getElementById('sni-spin').innerHTML='';
 }
 function stopSNI(){sniStop=true;}
+function clearSNIScan(){
+  document.getElementById('sni-raw-input').value='';
+  document.getElementById('sni-tbody').innerHTML='';
+  document.getElementById('sni-out2').style.display='none';
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  sniResults=[];
+}
+function copySNITop(){
+  const top=sniResults.filter(r=>r.score>=60).map(r=>r.domain+':'+r.port).join('\n');
+  navigator.clipboard.writeText(top);
+}
+function exportSNITable(){
+  const header='Rank\tGrade\tHost\tCDN\tAvg Ping\tJitter\tH2\tTLS\tStable\tScore\tTarget';
+  const rows=sniResults.map((r,i)=>`${i+1}\t${r.grade}\t${r.domain}\t${r.cdn}\t${r.avg.toFixed(1)}\t${r.jitter.toFixed(1)}\t${r.h2?'✓':'-'}\t${r.tls?'✓':'✗'}\t${r.stable?'✓':'~'}\t${r.score}%\t${r.domain}:${r.port}`);
+  const blob=new Blob([[header,...rows].join('\n')],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sni_reality_scan.txt';a.click();
+}
 </script>
 </body>
 </html>
