@@ -3,319 +3,637 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VLESS Config Maker — Onixia</title>
+<title>ONIXIA — VLESS Config Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#07040f;
-  --bg2:#0d0818;
-  --card:#100c1e;
-  --card2:#160f28;
-  --border:#251840;
-  --border2:#3d2860;
-  --a1:#ff2d78;   /* neon pink */
-  --a2:#bf00ff;   /* electric purple */
-  --a3:#ff7b00;   /* hot orange */
-  --a4:#00e5ff;   /* cyan accent */
-  --ag:#39ff14;   /* neon green for good scores */
-  --red:#ff2d5a;
-  --yellow:#ffb700;
-  --text:#e8d8ff;
-  --text2:#8868b0;
-  --text3:#4a3870;
-  --glow1:0 0 24px rgba(255,45,120,.22);
-  --glow2:0 0 24px rgba(191,0,255,.22);
-  --glow3:0 0 24px rgba(0,229,255,.18);
-  --font:'Syne',sans-serif;
-  --mono:'JetBrains Mono',monospace;
+/* ═══════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════ */
+:root {
+  --bg:        #090b14;
+  --bg1:       #0d1120;
+  --bg2:       #111728;
+  --glass:     rgba(255,255,255,.032);
+  --glass2:    rgba(255,255,255,.055);
+  --border:    rgba(255,255,255,.07);
+  --border2:   rgba(99,179,255,.18);
+  --border3:   rgba(99,179,255,.35);
+
+  --blue:      #3b9eff;
+  --blue2:     #60b3ff;
+  --indigo:    #6366f1;
+  --cyan:      #22d3ee;
+  --mint:      #34d399;
+  --amber:     #fbbf24;
+  --rose:      #f43f5e;
+  --orange:    #fb923c;
+
+  --text:      #e2eaf6;
+  --text2:     #7b8fb0;
+  --text3:     #3d4f6d;
+
+  --r:         14px;
+  --r2:        10px;
+  --font:      'Outfit', sans-serif;
+  --mono:      'JetBrains Mono', monospace;
+  --display:   'Outfit', sans-serif;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 
-/* ── animated mesh bg ── */
-.mesh{position:fixed;inset:0;z-index:0;pointer-events:none;
+/* ═══════════════════════════════
+   RESET & BASE
+═══════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════
+   ANIMATED BACKGROUND
+═══════════════════════════════ */
+.bg-layer {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 70% 50% at 15% 20%,rgba(191,0,255,.12) 0%,transparent 65%),
-    radial-gradient(ellipse 60% 45% at 85% 75%,rgba(255,45,120,.1) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 60% at 50% 50%,rgba(0,229,255,.05) 0%,transparent 70%),
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(59,158,255,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(99,102,241,.07) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(34,211,238,.03) 0%, transparent 65%),
     var(--bg);
-  animation:meshPulse 8s ease-in-out infinite alternate}
-@keyframes meshPulse{
-  0%{background-position:0% 0%,100% 100%,50% 50%}
-  100%{background-position:5% 8%,95% 92%,48% 52%}}
+}
+.bg-noise {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .018;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+#cvs { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .35; }
 
-/* ── scanlines ── */
-.scan{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.025;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.6) 2px,rgba(255,255,255,.6) 3px)}
+/* ═══════════════════════════════
+   LAYOUT
+═══════════════════════════════ */
+.wrap {
+  position: relative; z-index: 2;
+  max-width: 980px; margin: 0 auto;
+  padding: 0 1.25rem 6rem;
+}
 
-/* ── canvas particles ── */
-#cvs{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4}
+/* ═══════════════════════════════
+   HEADER / HERO
+═══════════════════════════════ */
+.site-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.5rem 0 0;
+  opacity: 0; transform: translateY(-16px);
+  animation: fadeDown .7s cubic-bezier(.16,1,.3,1) .1s forwards;
+}
+.logo-lockup { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 20px rgba(59,158,255,.3);
+  flex-shrink: 0;
+}
+.logo-icon svg { width: 18px; height: 18px; fill: #fff; }
+.logo-text {
+  font-family: var(--display);
+  font-size: 1.15rem; font-weight: 700; letter-spacing: .04em;
+  background: linear-gradient(135deg, #fff 30%, var(--blue2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.gh-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px;
+  border: 1px solid var(--border2); background: var(--glass);
+  color: var(--text2); font-size: 12px; font-family: var(--font);
+  text-decoration: none; cursor: pointer; transition: all .2s;
+  backdrop-filter: blur(12px);
+}
+.gh-btn:hover { color: var(--text); border-color: var(--border3); background: var(--glass2); }
+.gh-btn svg { width: 14px; height: 14px; fill: currentColor; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 100px;
+  background: rgba(52,211,153,.08); border: 1px solid rgba(52,211,153,.2);
+  font-size: 11px; color: var(--mint); font-weight: 500;
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--mint);
+  box-shadow: 0 0 8px var(--mint); animation: blink 2s ease infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-/* ── layout ── */
-.wrap{position:relative;z-index:2;max-width:960px;margin:0 auto;padding:2rem 1.25rem 5rem}
+/* HERO */
+.hero {
+  text-align: center; padding: 3.5rem 0 2.5rem;
+}
+.hero-eyebrow {
+  font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--blue); font-weight: 600; margin-bottom: 1.1rem;
+  opacity: 0; animation: fadeUp .6s ease .3s forwards;
+}
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(3.2rem, 10vw, 6.5rem);
+  font-weight: 900; letter-spacing: -.04em; line-height: .95;
+  margin-bottom: 1.2rem;
+  opacity: 0; animation: fadeUp .8s cubic-bezier(.16,1,.3,1) .15s forwards;
+}
+.hero-title .word-1 {
+  display: block;
+  background: linear-gradient(135deg, #fff 20%, var(--blue2) 60%, var(--cyan) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(59,158,255,.25));
+}
+.hero-title .word-2 {
+  display: block; font-size: .45em; font-weight: 400; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text3); margin-top: .4rem;
+  -webkit-text-fill-color: var(--text3); background: none;
+  filter: none;
+}
+.hero-desc {
+  font-size: 14px; color: var(--text2); max-width: 440px; margin: 0 auto 1.5rem;
+  opacity: 0; animation: fadeUp .7s ease .45s forwards;
+}
+.hero-tags {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  opacity: 0; animation: fadeUp .6s ease .6s forwards;
+}
+.tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 12px; border-radius: 100px;
+  font-size: 11px; font-weight: 500; letter-spacing: .03em;
+  border: 1px solid var(--border); background: var(--glass);
+  color: var(--text2); backdrop-filter: blur(8px);
+}
+.tag.t-blue { border-color: rgba(59,158,255,.25); background: rgba(59,158,255,.07); color: var(--blue2); }
+.tag.t-indigo { border-color: rgba(99,102,241,.25); background: rgba(99,102,241,.07); color: #a5b4fc; }
+.tag.t-cyan { border-color: rgba(34,211,238,.25); background: rgba(34,211,238,.07); color: var(--cyan); }
 
-/* ── hero ── */
-.hero{text-align:center;padding:3.5rem 0 2rem;position:relative}
-.hero-logo{
-  font-size:clamp(3.5rem,11vw,7rem);font-weight:800;letter-spacing:-.05em;line-height:1;
-  background:linear-gradient(135deg,var(--a1) 0%,var(--a2) 45%,var(--a4) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:logoIn 1s cubic-bezier(.16,1,.3,1) both;display:inline-block;position:relative;
-  filter:drop-shadow(0 0 40px rgba(191,0,255,.35))}
-.hero-logo::after{content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:-6px;
-  width:55%;height:2px;background:linear-gradient(90deg,transparent,var(--a1),var(--a2),transparent);
-  border-radius:2px;animation:lineIn 1.4s ease both .5s;box-shadow:0 0 12px var(--a1)}
-.hero-sub{margin-top:1.4rem;font-size:13px;color:var(--text2);letter-spacing:.15em;text-transform:uppercase;animation:fadeUp .8s ease both .35s}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;margin-top:.9rem;
-  background:rgba(255,45,120,.07);border:1px solid rgba(255,45,120,.2);
-  border-radius:100px;padding:5px 16px;font-size:11px;color:var(--a1);letter-spacing:.06em;
-  animation:fadeUp .8s ease both .55s;box-shadow:0 0 20px rgba(255,45,120,.08)}
-.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--a3);
-  box-shadow:0 0 8px var(--a3),0 0 16px var(--a3);animation:dotPulse 1.8s ease infinite}
-@keyframes dotPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.6);opacity:.4}}
+/* ═══════════════════════════════
+   MAIN NAVIGATION TABS
+═══════════════════════════════ */
+.nav-tabs {
+  display: flex; gap: 2px;
+  background: rgba(13,17,32,.8);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 4px;
+  margin-bottom: 1.2rem;
+  backdrop-filter: blur(16px);
+  opacity: 0; animation: fadeUp .6s ease .7s forwards;
+}
+.nav-tab {
+  flex: 1; padding: 10px 8px;
+  text-align: center; font-size: 12px; font-weight: 600;
+  letter-spacing: .04em; text-transform: uppercase;
+  cursor: pointer; border-radius: 10px;
+  transition: all .22s; color: var(--text3); user-select: none;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.nav-tab:hover { color: var(--text2); background: var(--glass); }
+.nav-tab.active {
+  background: linear-gradient(135deg, rgba(59,158,255,.18), rgba(99,102,241,.18));
+  color: var(--blue2);
+  border: 1px solid rgba(59,158,255,.25);
+  box-shadow: 0 0 20px rgba(59,158,255,.08), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.nav-tab svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeUp .35s ease both; }
 
-/* github */
-.github-link{position:absolute;top:0;right:0;display:flex;align-items:center;gap:7px;
-  padding:7px 14px;border:1px solid var(--border2);border-radius:10px;
-  color:var(--text2);font-size:12px;text-decoration:none;transition:all .2s;
-  background:rgba(16,12,30,.85);backdrop-filter:blur(10px)}
-.github-link:hover{color:var(--a1);border-color:var(--a1);box-shadow:var(--glow1)}
-.github-link svg{width:15px;height:15px;fill:currentColor;flex-shrink:0}
+/* ═══════════════════════════════
+   SUB-TABS
+═══════════════════════════════ */
+.sub-tabs {
+  display: flex; gap: 4px;
+  background: transparent;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.1rem;
+}
+.sub-tab {
+  padding: 8px 16px; font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent;
+  transition: all .2s; margin-bottom: -1px; user-select: none;
+}
+.sub-tab:hover { color: var(--text2); }
+.sub-tab.active { color: var(--blue2); border-bottom-color: var(--blue); }
 
-/* ── tabs ── */
-.tabs{display:flex;gap:3px;background:rgba(13,8,24,.9);padding:4px;border-radius:14px;
-  border:1px solid var(--border);margin-bottom:1.1rem;backdrop-filter:blur(8px)}
-.tab{flex:1;padding:9px 6px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.06em;
-  text-transform:uppercase;cursor:pointer;border-radius:11px;transition:all .22s;color:var(--text3);user-select:none}
-.tab:hover{color:var(--text2)}
-.tab.active{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;
-  box-shadow:0 0 20px rgba(255,45,120,.3),inset 0 1px 0 rgba(255,255,255,.15)}
-.tab-panel{display:none}
-.tab-panel.active{display:block;animation:fadeUp .4s ease both}
+/* ═══════════════════════════════
+   GLASS CARDS
+═══════════════════════════════ */
+.card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 1.2rem;
+  position: relative; overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+  backdrop-filter: blur(12px);
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+  border-radius: var(--r) var(--r) 0 0;
+}
+.card:hover { border-color: var(--border2); }
+.card-gap { margin-bottom: .9rem; }
 
-/* ── card ── */
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem;
-  position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,45,120,.15),rgba(191,0,255,.15),transparent)}
-.card:hover{border-color:var(--border2)}
+/* ═══════════════════════════════
+   FIELD LABELS
+═══════════════════════════════ */
+.field-label {
+  font-size: 10px; color: var(--text3); letter-spacing: .12em;
+  text-transform: uppercase; font-weight: 600;
+  margin-bottom: 8px; display: flex; align-items: center; gap: 7px;
+}
+.dot-icon {
+  width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+}
+.d-blue { background: var(--blue); box-shadow: 0 0 5px var(--blue); }
+.d-cyan { background: var(--cyan); box-shadow: 0 0 5px var(--cyan); }
+.d-orange { background: var(--orange); box-shadow: 0 0 5px var(--orange); }
+.d-mint { background: var(--mint); box-shadow: 0 0 5px var(--mint); }
 
-/* ── labels ── */
-.lbl{font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;
-  margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.dot{width:5px;height:5px;border-radius:50%;background:var(--a1);box-shadow:0 0 6px var(--a1)}
-.dot-cyan{background:var(--a4);box-shadow:0 0 6px var(--a4)}
-.dot-orange{background:var(--a3);box-shadow:0 0 6px var(--a3)}
+/* ═══════════════════════════════
+   INPUTS
+═══════════════════════════════ */
+textarea, input[type="text"] {
+  width: 100%;
+  background: rgba(9,11,20,.7);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 10px 13px;
+  font-family: var(--mono); font-size: 12px;
+  color: var(--text); resize: vertical; line-height: 1.75;
+  outline: none; transition: border-color .2s, box-shadow .2s; appearance: none;
+}
+textarea:focus, input[type="text"]:focus {
+  border-color: rgba(59,158,255,.35);
+  box-shadow: 0 0 0 3px rgba(59,158,255,.08);
+}
+textarea::placeholder, input::placeholder { color: var(--text3); }
+input[type="text"] { resize: none; }
 
-/* ── inputs ── */
-textarea,input[type=text]{
-  width:100%;background:rgba(7,4,15,.8);border:1px solid var(--border);border-radius:10px;
-  padding:10px 13px;font-family:var(--mono);font-size:12px;color:var(--text);
-  resize:vertical;line-height:1.7;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none}
-textarea:focus,input[type=text]:focus{border-color:rgba(191,0,255,.4);box-shadow:0 0 0 3px rgba(191,0,255,.08)}
-textarea::placeholder,input::placeholder{color:var(--text3)}
-input[type=text]{resize:none}
+/* ═══════════════════════════════
+   BUTTONS
+═══════════════════════════════ */
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border-radius: var(--r2);
+  border: 1px solid var(--border2); background: var(--glass);
+  color: var(--text); font-size: 12px; cursor: pointer;
+  transition: all .18s; font-family: var(--font); font-weight: 600;
+  white-space: nowrap; backdrop-filter: blur(8px);
+}
+.btn:hover { background: var(--glass2); border-color: var(--border3); color: var(--blue2); }
+.btn:active { transform: scale(.96); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  border: none; color: #fff;
+  box-shadow: 0 4px 15px rgba(59,158,255,.25);
+}
+.btn-primary:hover { opacity: .88; color: #fff; box-shadow: 0 4px 22px rgba(59,158,255,.38); }
+.btn-cyan {
+  background: linear-gradient(135deg, var(--cyan), #0891b2);
+  border: none; color: #0a1628;
+  box-shadow: 0 4px 15px rgba(34,211,238,.18);
+}
+.btn-cyan:hover { opacity: .88; color: #0a1628; }
+.btn-orange {
+  background: linear-gradient(135deg, var(--orange), #c2410c);
+  border: none; color: #fff;
+  box-shadow: 0 4px 15px rgba(251,146,60,.2);
+}
+.btn-orange:hover { opacity: .88; }
+.btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 7px; }
+.btn-ghost { border-color: var(--border); color: var(--text2); background: transparent; }
+.btn-ghost:hover { background: var(--glass); border-color: var(--border2); color: var(--text); }
+.err-msg { color: var(--rose); font-size: 12px; font-family: var(--mono); }
 
-/* ── buttons ── */
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:1rem}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;
-  border:1px solid var(--border2);background:transparent;color:var(--text);font-size:12px;
-  cursor:pointer;transition:all .18s;font-family:var(--font);font-weight:600;white-space:nowrap}
-.btn:hover{background:var(--card2);border-color:var(--a2);color:var(--a2);box-shadow:var(--glow2)}
-.btn:active{transform:scale(.96)}
-.btn-pk{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;border:none}
-.btn-pk:hover{opacity:.85;color:#fff;box-shadow:var(--glow1)}
-.btn-cy{background:linear-gradient(135deg,var(--a4),#007acc);color:#000;border:none}
-.btn-cy:hover{opacity:.85;color:#000;box-shadow:var(--glow3)}
-.btn-or{background:linear-gradient(135deg,var(--a3),#cc4400);color:#fff;border:none}
-.btn-or:hover{opacity:.85;box-shadow:0 0 24px rgba(255,123,0,.4)}
-.btn-sm{padding:5px 12px;font-size:11px;border-radius:7px}
-.err{color:var(--red);font-size:12px;font-family:var(--mono)}
+/* ═══════════════════════════════
+   GRID
+═══════════════════════════════ */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+@media(max-width:600px) { .grid2 { grid-template-columns: 1fr; } }
 
-/* ── grid ── */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
-@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+/* ═══════════════════════════════
+   STATS BAR
+═══════════════════════════════ */
+.stats-bar { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: .9rem; }
+.stat-pill {
+  background: rgba(13,17,32,.85); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 12px;
+  font-size: 11px; color: var(--text2); font-family: var(--mono);
+}
+.stat-pill b { color: var(--blue2); font-weight: 600; }
 
-/* ── stats bar ── */
-.stats-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.9rem}
-.stat{background:rgba(13,8,24,.9);border:1px solid var(--border);border-radius:8px;
-  padding:6px 12px;font-size:11px;color:var(--text2);font-family:var(--mono)}
-.stat b{color:var(--a4);font-weight:600}
+/* ═══════════════════════════════
+   OUTPUT SECTIONS
+═══════════════════════════════ */
+.out-section { display: none; animation: fadeUp .5s ease both; margin-top: 1rem; }
+.action-row { display: flex; gap: 8px; margin-bottom: .8rem; flex-wrap: wrap; }
+.scroll-box { max-height: 440px; overflow-y: auto; }
 
-/* ── output ── */
-.out-section{display:none;animation:fadeUp .5s ease both;margin-top:1.1rem}
-.action-row{display:flex;gap:8px;margin-bottom:.8rem;flex-wrap:wrap}
-.scroll-box{max-height:440px;overflow-y:auto}
+/* Config rows */
+.cfg-row {
+  background: rgba(9,11,20,.8);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 9px 13px;
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 4px; transition: border-color .15s;
+}
+.cfg-row:hover { border-color: var(--border2); }
+.cfg-ip {
+  min-width: 130px; font-size: 10px; color: var(--text3);
+  font-family: var(--mono); padding-top: 2px; flex-shrink: 0;
+}
+.cfg-text {
+  flex: 1; font-family: var(--mono); font-size: 11px;
+  color: #7ee8b0; word-break: break-all; line-height: 1.6;
+}
+.copy-btn {
+  flex-shrink: 0; padding: 4px 10px; font-size: 10px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: transparent; color: var(--text3); cursor: pointer;
+  font-family: var(--font); transition: all .15s;
+}
+.copy-btn:hover { background: var(--glass); color: var(--blue2); border-color: var(--border2); }
 
-/* cfg rows */
-.cfg-row{background:rgba(7,4,15,.9);border:1px solid var(--border);border-radius:10px;
-  padding:9px 12px;display:flex;align-items:flex-start;gap:10px;margin-bottom:5px;transition:border-color .15s}
-.cfg-row:hover{border-color:var(--border2)}
-.cfg-ip{min-width:130px;font-size:10px;color:var(--text3);font-family:var(--mono);padding-top:2px;flex-shrink:0}
-.cfg-text{flex:1;font-family:var(--mono);font-size:11px;color:#a8f0c0;word-break:break-all;line-height:1.6}
-.copy-btn{flex-shrink:0;padding:4px 10px;font-size:10px;border:1px solid var(--border2);
-  border-radius:6px;background:transparent;color:var(--text3);cursor:pointer;
-  font-family:var(--font);transition:all .15s}
-.copy-btn:hover{background:var(--card2);color:var(--a1);border-color:var(--a1)}
+/* ═══════════════════════════════
+   PROGRESS
+═══════════════════════════════ */
+.progress-wrap {
+  background: rgba(13,17,32,.9);
+  border-radius: 100px; height: 4px; overflow: hidden; margin: .5rem 0;
+}
+.progress-fill {
+  height: 100%; border-radius: 100px;
+  background: linear-gradient(90deg, var(--blue), var(--indigo), var(--cyan));
+  transition: width .3s ease; width: 0%;
+  box-shadow: 0 0 8px rgba(59,158,255,.5);
+}
+.progress-label { font-size: 11px; color: var(--text2); font-family: var(--mono); margin-top: 5px; }
 
-/* ── progress ── */
-.progress-wrap{background:rgba(13,8,24,.9);border-radius:100px;height:5px;overflow:hidden;margin:.5rem 0}
-.progress-fill{height:100%;border-radius:100px;
-  background:linear-gradient(90deg,var(--a1),var(--a2),var(--a4));
-  transition:width .3s ease;width:0%;box-shadow:0 0 10px var(--a1)}
-.progress-label{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:5px}
+/* ═══════════════════════════════
+   PING CARDS
+═══════════════════════════════ */
+.ping-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(270px,1fr));
+  gap: 8px; max-height: 520px; overflow-y: auto;
+}
+.ping-card {
+  background: rgba(9,11,20,.9); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; transition: all .2s;
+}
+.ping-card:hover { border-color: var(--border2); box-shadow: 0 0 20px rgba(59,158,255,.06); }
+.ping-ip-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ping-ip { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--text); }
+.score-badge { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 100px; }
+.sc-a { background: rgba(52,211,153,.12); color: var(--mint); border: 1px solid rgba(52,211,153,.3); }
+.sc-b { background: rgba(59,158,255,.1); color: var(--blue2); border: 1px solid rgba(59,158,255,.25); }
+.sc-c { background: rgba(251,191,36,.1); color: var(--amber); border: 1px solid rgba(251,191,36,.25); }
+.sc-d { background: rgba(244,63,94,.1); color: var(--rose); border: 1px solid rgba(244,63,94,.25); }
+.metric-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.m-lbl { font-size: 9px; color: var(--text3); letter-spacing: .07em; text-transform: uppercase; width: 48px; flex-shrink: 0; }
+.m-bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,.05); border-radius: 2px; overflow: hidden; }
+.m-bar { height: 100%; border-radius: 2px; transition: width 1s cubic-bezier(.16,1,.3,1); }
+.bar-g { background: linear-gradient(90deg, var(--mint), #059669); }
+.bar-b { background: linear-gradient(90deg, var(--blue), #1d6fa4); }
+.bar-y { background: linear-gradient(90deg, var(--amber), #92400e); }
+.bar-r { background: linear-gradient(90deg, var(--rose), #9f1239); }
+.m-val { font-family: var(--mono); font-size: 10px; color: var(--text2); min-width: 50px; text-align: right; }
+.m-ok { font-size: 11px; min-width: 16px; text-align: right; }
+.ok-y { color: var(--mint); }
+.ok-n { color: var(--rose); }
 
-/* ── ping cards ── */
-.ping-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px;max-height:520px;overflow-y:auto}
-.ping-card{background:rgba(7,4,15,.9);border:1px solid var(--border);border-radius:12px;padding:11px 13px;transition:all .2s}
-.ping-card:hover{border-color:var(--border2);box-shadow:0 0 20px rgba(191,0,255,.08)}
-.ping-ip-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
-.ping-ip{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)}
-.score-badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:100px}
-.sc-a{background:rgba(57,255,20,.12);color:#39ff14;border:1px solid rgba(57,255,20,.3)}
-.sc-b{background:rgba(0,229,255,.1);color:var(--a4);border:1px solid rgba(0,229,255,.25)}
-.sc-c{background:rgba(255,183,0,.1);color:var(--yellow);border:1px solid rgba(255,183,0,.25)}
-.sc-d{background:rgba(255,45,90,.1);color:var(--red);border:1px solid rgba(255,45,90,.25)}
-.metric-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
-.m-lbl{font-size:9px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;width:48px;flex-shrink:0}
-.m-bar-wrap{flex:1;height:3px;background:var(--bg2);border-radius:2px;overflow:hidden}
-.m-bar{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.16,1,.3,1)}
-.bar-g{background:linear-gradient(90deg,#39ff14,#00a840)}
-.bar-b{background:linear-gradient(90deg,var(--a4),#0060aa)}
-.bar-y{background:linear-gradient(90deg,var(--yellow),#cc7700)}
-.bar-r{background:linear-gradient(90deg,var(--red),#aa1030)}
-.m-val{font-family:var(--mono);font-size:10px;color:var(--text2);min-width:50px;text-align:right}
-.m-ok{font-size:11px;min-width:16px;text-align:right}
-.ok-y{color:#39ff14}
-.ok-n{color:var(--red)}
+/* ═══════════════════════════════
+   SNI TABLE
+═══════════════════════════════ */
+.sni-table-wrap { overflow-x: auto; max-height: 520px; overflow-y: auto; border-radius: var(--r2); }
+table.sni-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--mono); font-size: 11px;
+}
+table.sni-tbl thead th {
+  padding: 9px 11px; text-align: left;
+  font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text3); border-bottom: 1px solid var(--border);
+  background: rgba(9,11,20,.95); position: sticky; top: 0; z-index: 2;
+  white-space: nowrap; font-weight: 600;
+}
+table.sni-tbl tbody tr { border-bottom: 1px solid rgba(255,255,255,.03); transition: background .15s; }
+table.sni-tbl tbody tr:hover { background: rgba(59,158,255,.04); }
+table.sni-tbl td { padding: 8px 11px; vertical-align: middle; white-space: nowrap; }
+.td-rank { color: var(--text2); font-weight: 600; text-align: center; }
+.td-grade { text-align: center; }
+.td-host { color: var(--text); font-weight: 500; min-width: 200px; white-space: normal; }
+.td-cdn { color: var(--text3); }
+.td-ping { text-align: right; font-variant-numeric: tabular-nums; }
+.td-jitter { text-align: right; color: var(--text3); font-variant-numeric: tabular-nums; }
+.td-h2, .td-stable { text-align: center; }
+.td-target { color: #7ee8b0; min-width: 200px; white-space: normal; }
+.td-score { text-align: center; }
+.g-a { color: var(--mint); font-weight: 700; }
+.g-b { color: var(--blue2); font-weight: 700; }
+.g-c { color: var(--amber); font-weight: 700; }
+.g-d { color: var(--rose); font-weight: 700; }
+.ping-good { color: var(--mint); }
+.ping-ok { color: var(--blue2); }
+.ping-slow { color: var(--amber); }
+.ping-bad { color: var(--rose); }
+.tbl-btn-row { display: flex; gap: 8px; margin-bottom: .8rem; flex-wrap: wrap; align-items: center; }
 
-/* ── SNI Reality Table ── */
-.sni-table-wrap{overflow-x:auto;max-height:520px;overflow-y:auto}
-table.sni-tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
-table.sni-tbl thead th{
-  padding:8px 10px;text-align:left;font-size:9px;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap;
-  background:rgba(13,8,24,.95);position:sticky;top:0;z-index:2}
-table.sni-tbl tbody tr{border-bottom:1px solid rgba(37,24,64,.5);transition:background .15s}
-table.sni-tbl tbody tr:hover{background:rgba(37,24,64,.5)}
-table.sni-tbl td{padding:8px 10px;vertical-align:middle;white-space:nowrap}
-.td-rank{color:var(--text2);font-weight:600;text-align:center}
-.td-grade{text-align:center}
-.td-host{color:var(--text);font-weight:500;min-width:200px;white-space:normal}
-.td-cdn{color:var(--text3)}
-.td-ping{text-align:right;font-variant-numeric:tabular-nums}
-.td-jitter{text-align:right;color:var(--text3);font-variant-numeric:tabular-nums}
-.td-h2{text-align:center}
-.td-stable{text-align:center}
-.td-target{color:#a8f0c0;min-width:200px;white-space:normal}
-.td-score{text-align:center}
-.g-a{color:#39ff14}
-.g-b{color:var(--a4)}
-.g-c{color:var(--yellow)}
-.g-d{color:var(--red)}
-.ping-good{color:#39ff14}
-.ping-ok{color:var(--a4)}
-.ping-slow{color:var(--yellow)}
-.ping-bad{color:var(--red)}
-.sni-row-checking td{opacity:.5}
-.check-icon{animation:spin .7s linear infinite;display:inline-block}
-.tbl-btn-row{display:flex;gap:8px;margin-bottom:.8rem;flex-wrap:wrap;align-items:center}
-.top-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;padding:3px 10px;
-  border-radius:100px;font-weight:600;font-family:var(--font)}
-.top-badge.best{background:rgba(57,255,20,.12);color:#39ff14;border:1px solid rgba(57,255,20,.3)}
-.top-badge.good{background:rgba(0,229,255,.1);color:var(--a4);border:1px solid rgba(0,229,255,.25)}
-.top-badge.warn{background:rgba(255,183,0,.1);color:var(--yellow);border:1px solid rgba(255,183,0,.25)}
+/* ═══════════════════════════════
+   CHIPS
+═══════════════════════════════ */
+.source-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: .6rem; }
+.chip {
+  font-size: 10px; padding: 4px 11px; border-radius: 100px;
+  border: 1px solid var(--border); color: var(--text3);
+  cursor: pointer; transition: all .15s; font-family: var(--mono);
+  background: transparent;
+}
+.chip:hover, .chip.sel {
+  background: rgba(59,158,255,.1);
+  color: var(--blue2); border-color: rgba(59,158,255,.3);
+}
 
-/* ── built-in sources panel ── */
-.source-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.6rem}
-.chip{font-size:10px;padding:3px 10px;border-radius:100px;border:1px solid var(--border2);
-  color:var(--text2);cursor:pointer;transition:all .15s;font-family:var(--mono)}
-.chip:hover,.chip.sel{background:rgba(191,0,255,.15);color:var(--a2);border-color:var(--a2)}
+/* ═══════════════════════════════
+   DIVIDER
+═══════════════════════════════ */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: .8rem 0;
+}
 
-/* ── misc ── */
-.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:.75rem 0}
-::-webkit-scrollbar{width:3px;height:3px}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
-.spinner{width:13px;height:13px;border:2px solid rgba(255,45,120,.2);border-top-color:var(--a1);
-  border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
-.footer{text-align:center;margin-top:3rem;font-size:11px;color:var(--text3);letter-spacing:.05em}
-.footer a{color:var(--text3);text-decoration:none;transition:color .2s}
-.footer a:hover{color:var(--a1)}
+/* ═══════════════════════════════
+   SCROLLBAR
+═══════════════════════════════ */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(59,158,255,.2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(59,158,255,.4); }
 
-/* ── animations ── */
-@keyframes logoIn{from{opacity:0;transform:translateY(28px) scale(.9)}to{opacity:1;transform:none}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes lineIn{from{width:0;opacity:0}to{width:55%;opacity:1}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes float0{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,-22px)}}
-@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,18px)}}
-@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(12px,20px)}}
+/* ═══════════════════════════════
+   SPINNER
+═══════════════════════════════ */
+.spinner {
+  width: 13px; height: 13px;
+  border: 2px solid rgba(59,158,255,.15);
+  border-top-color: var(--blue);
+  border-radius: 50%; animation: spin .7s linear infinite;
+  display: inline-block; vertical-align: middle;
+}
+
+/* ═══════════════════════════════
+   FOOTER
+═══════════════════════════════ */
+.footer {
+  text-align: center; margin-top: 3.5rem;
+  padding-bottom: 1rem;
+  font-size: 11px; color: var(--text3); letter-spacing: .06em;
+}
+.footer a { color: var(--text3); text-decoration: none; transition: color .2s; }
+.footer a:hover { color: var(--blue2); }
+.footer-line {
+  width: 60px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  margin: 0 auto 1rem;
+}
+
+/* ═══════════════════════════════
+   STAGGER ANIMATIONS
+═══════════════════════════════ */
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+@keyframes fadeDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:none; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes float0 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,-24px)} }
+@keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-18px,20px)} }
+@keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(14px,22px)} }
+
+.stagger-1 { opacity:0; animation: fadeUp .6s ease .75s forwards; }
+.stagger-2 { opacity:0; animation: fadeUp .6s ease .85s forwards; }
+.stagger-3 { opacity:0; animation: fadeUp .6s ease .95s forwards; }
+
+/* Floating orbs */
+.orb {
+  position: fixed; border-radius: 50%; z-index: 0; pointer-events: none;
+  background: radial-gradient(circle, var(--c) 0%, transparent 70%);
+}
 </style>
 </head>
 <body>
-<div class="mesh"></div>
-<div class="scan"></div>
+
+<div class="bg-layer"></div>
+<div class="bg-noise"></div>
 <canvas id="cvs"></canvas>
 
-<!-- floating orbs -->
-<div style="position:fixed;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(191,0,255,.09),transparent 70%);left:-80px;top:30%;z-index:0;pointer-events:none;animation:float0 9s ease-in-out infinite"></div>
-<div style="position:fixed;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,45,120,.08),transparent 70%);right:-60px;top:10%;z-index:0;pointer-events:none;animation:float1 11s ease-in-out infinite"></div>
-<div style="position:fixed;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.07),transparent 70%);right:10%;bottom:15%;z-index:0;pointer-events:none;animation:float2 13s ease-in-out infinite"></div>
+<!-- Floating ambient orbs -->
+<div class="orb" style="--c:rgba(59,158,255,.07);width:500px;height:500px;left:-150px;top:20%;animation:float0 11s ease-in-out infinite"></div>
+<div class="orb" style="--c:rgba(99,102,241,.06);width:380px;height:380px;right:-100px;top:8%;animation:float1 13s ease-in-out infinite"></div>
+<div class="orb" style="--c:rgba(34,211,238,.05);width:300px;height:300px;right:8%;bottom:18%;animation:float2 15s ease-in-out infinite"></div>
 
 <div class="wrap">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="logo-lockup">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <span class="logo-text">ONIXIA</span>
+    </div>
+    <div class="header-actions">
+      <div class="status-pill"><span class="status-dot"></span>Live</div>
+      <a class="gh-btn" href="https://github.com/Onixs50" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        GitHub
+      </a>
+    </div>
+  </header>
+
   <!-- HERO -->
-  <div class="hero">
-    <a class="github-link" href="https://github.com/Onixs50" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-      Onixia
-    </a>
-    <div class="hero-logo">ONIXIA</div>
-    <p class="hero-sub">VLESS Config Studio</p>
-    <div class="hero-badge"><span class="pulse-dot"></span>Reality-Ready SNI Scanner &amp; Config Toolkit</div>
-  </div>
+  <section class="hero">
+    <p class="hero-eyebrow">VLESS Config Studio</p>
+    <h1 class="hero-title">
+      <span class="word-1">ONIXIA</span>
+      <span class="word-2">Reality-Ready Network Toolkit</span>
+    </h1>
+    <p class="hero-desc">Generate, test, and optimize VLESS configurations with intelligent SNI scanning and IP analysis.</p>
+    <div class="hero-tags">
+      <span class="tag t-blue">Config Editor</span>
+      <span class="tag t-cyan">Ping Tester</span>
+      <span class="tag t-indigo">SNI Scanner</span>
+    </div>
+  </section>
 
   <!-- MAIN TABS -->
-  <div class="tabs" id="mainTabs">
-    <div class="tab active" onclick="switchTab('replace')">⇄ Config Editor</div>
-    <div class="tab" onclick="switchTab('ping')">⚡ Ping Test</div>
-    <div class="tab" onclick="switchTab('sni')">◈ SNI Scanner</div>
-  </div>
+  <nav class="nav-tabs" id="mainTabs">
+    <div class="nav-tab active" onclick="switchTab('replace')">
+      <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 3l3-3 3 3m0 0v-6"/></svg>
+      Config Editor
+    </div>
+    <div class="nav-tab" onclick="switchTab('ping')">
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Ping Test
+    </div>
+    <div class="nav-tab" onclick="switchTab('sni')">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v3l2 2"/></svg>
+      SNI Scanner
+    </div>
+  </nav>
 
-  <!-- ══════════════ TAB: CONFIG EDITOR ══════════════ -->
+  <!-- ══════════════ CONFIG EDITOR ══════════════ -->
   <div id="tab-replace" class="tab-panel active">
-    <div class="card" style="margin-bottom:.9rem">
-      <div class="lbl"><span class="dot"></span>VLESS Config URI</div>
+
+    <div class="card card-gap stagger-1">
+      <div class="field-label"><span class="dot-icon d-blue"></span>VLESS Config URI</div>
       <textarea id="cfg" rows="3" placeholder="vless://uuid@example.com:443?encryption=none&security=tls&sni=example.com&...#label"></textarea>
     </div>
 
-    <div class="tabs" id="subTabs">
-      <div class="tab active" onclick="switchSubTab('ip-tab')">Replace IP</div>
-      <div class="tab" onclick="switchSubTab('sni-tab')">Replace SNI</div>
-    </div>
+    <div class="stagger-2">
+      <div class="sub-tabs" id="subTabs">
+        <div class="sub-tab active" onclick="switchSubTab('ip-tab')">Replace IP</div>
+        <div class="sub-tab" onclick="switchSubTab('sni-tab')">Replace SNI</div>
+      </div>
 
-    <div id="ip-tab" class="tab-panel active">
-      <div class="card">
-        <div class="lbl"><span class="dot-cyan dot"></span>IP List — paste anything, IPs auto-extracted (unlimited)</div>
-        <textarea id="ips" rows="9" style="min-height:150px" placeholder="205.251.253.51   529ms&#10;13.249.170.161   500ms&#10;76.76.21.48&#10;76.76.22.105&#10;...any format works"></textarea>
+      <div id="ip-tab" class="tab-panel active">
+        <div class="card">
+          <div class="field-label"><span class="dot-icon d-cyan"></span>IP List — paste anything, IPs auto-extracted (unlimited)</div>
+          <textarea id="ips" rows="9" style="min-height:150px" placeholder="205.251.253.51   529ms&#10;13.249.170.161   500ms&#10;76.76.21.48&#10;76.76.22.105&#10;...any format works"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="generateIP()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Generate Configs
+          </button>
+          <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+          <span id="ip-err" class="err-msg"></span>
+        </div>
       </div>
-      <div class="btn-row">
-        <button class="btn btn-pk" onclick="generateIP()">→ Generate Configs</button>
-        <button class="btn" onclick="clearAll()">✕ Clear</button>
-        <span id="ip-err" class="err"></span>
-      </div>
-    </div>
 
-    <div id="sni-tab" class="tab-panel">
-      <div class="card">
-        <div class="lbl"><span class="dot-orange dot"></span>New SNI — one domain per line (unlimited)</div>
-        <textarea id="snis" rows="9" style="min-height:150px" placeholder="cdn.cloudflare.com&#10;speed.cloudflare.com&#10;www.wikipedia.org&#10;dl.google.com&#10;..."></textarea>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-pk" onclick="generateSNI()">→ Generate Configs</button>
-        <button class="btn" onclick="clearSNI()">✕ Clear</button>
-        <span id="sni-rep-err" class="err"></span>
+      <div id="sni-tab" class="tab-panel">
+        <div class="card">
+          <div class="field-label"><span class="dot-icon d-orange"></span>New SNI — one domain per line (unlimited)</div>
+          <textarea id="snis" rows="9" style="min-height:150px" placeholder="cdn.cloudflare.com&#10;speed.cloudflare.com&#10;www.wikipedia.org&#10;dl.google.com&#10;..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="generateSNI()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Generate Configs
+          </button>
+          <button class="btn btn-ghost" onclick="clearSNI()">Clear</button>
+          <span id="sni-rep-err" class="err-msg"></span>
+        </div>
       </div>
     </div>
 
@@ -342,25 +660,30 @@ table.sni-tbl td{padding:8px 10px;vertical-align:middle;white-space:nowrap}
         <div class="scroll-box" id="sni-list"></div>
       </div>
     </div>
+
   </div>
 
-  <!-- ══════════════ TAB: PING TEST ══════════════ -->
+  <!-- ══════════════ PING TEST ══════════════ -->
   <div id="tab-ping" class="tab-panel">
-    <div class="card" style="margin-bottom:.9rem">
-      <div class="lbl"><span class="dot"></span>IP List to Test</div>
+    <div class="card card-gap stagger-1">
+      <div class="field-label"><span class="dot-icon d-blue"></span>IP List to Test</div>
       <textarea id="ping-ips" rows="6" placeholder="Paste IPs — extracted automatically&#10;76.76.21.48&#10;205.251.253.51..."></textarea>
     </div>
-    <div class="grid2" style="margin-bottom:.9rem">
-      <div class="card"><div class="lbl"><span class="dot-cyan dot"></span>Port</div>
-        <input type="text" id="ping-port" value="443"></div>
-      <div class="card"><div class="lbl"><span class="dot-orange dot"></span>Timeout ms</div>
-        <input type="text" id="ping-timeout" value="5000"></div>
+    <div class="grid2 stagger-2" style="margin-bottom:.9rem">
+      <div class="card">
+        <div class="field-label"><span class="dot-icon d-cyan"></span>Port</div>
+        <input type="text" id="ping-port" value="443">
+      </div>
+      <div class="card">
+        <div class="field-label"><span class="dot-icon d-orange"></span>Timeout (ms)</div>
+        <input type="text" id="ping-timeout" value="5000">
+      </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-cy" onclick="runPing('quick')"><span id="q-spin"></span>⚡ Quick Scan</button>
-      <button class="btn btn-or" onclick="runPing('deep')"><span id="d-spin"></span>🔬 Deep Analysis</button>
-      <button class="btn" onclick="stopPing()">■ Stop</button>
-      <span id="ping-err" class="err"></span>
+    <div class="btn-row stagger-3">
+      <button class="btn btn-cyan" onclick="runPing('quick')"><span id="q-spin"></span>⚡ Quick Scan</button>
+      <button class="btn btn-orange" onclick="runPing('deep')"><span id="d-spin"></span>🔬 Deep Analysis</button>
+      <button class="btn btn-ghost" onclick="stopPing()">■ Stop</button>
+      <span id="ping-err" class="err-msg"></span>
     </div>
     <div class="out-section" id="ping-out">
       <div class="card">
@@ -373,27 +696,34 @@ table.sni-tbl td{padding:8px 10px;vertical-align:middle;white-space:nowrap}
     </div>
   </div>
 
-  <!-- ══════════════ TAB: SNI SCANNER ══════════════ -->
+  <!-- ══════════════ SNI SCANNER ══════════════ -->
   <div id="tab-sni" class="tab-panel">
-    <div class="card" style="margin-bottom:.9rem">
-      <div class="lbl"><span class="dot"></span>Paste Domains / SNI List — or pick from built-in sources below</div>
+    <div class="card card-gap stagger-1">
+      <div class="field-label"><span class="dot-icon d-blue"></span>Paste Domains / SNI List — or pick from built-in sources below</div>
       <textarea id="sni-raw-input" rows="6" placeholder="Paste any format — domains extracted automatically&#10;www.wikipedia.org&#10;cdn.jsdelivr.net:443&#10;  #5  developers.cloudflare.com  138ms  ✔&#10;...table/list/plain — anything works"></textarea>
-      <div style="margin-top:.8rem">
-        <div class="lbl" style="margin-bottom:6px"><span class="dot-orange dot"></span>Built-in Source Libraries — click to add</div>
+      <div style="margin-top:.9rem">
+        <div class="field-label" style="margin-bottom:6px"><span class="dot-icon d-orange"></span>Built-in Source Libraries — click to add</div>
         <div class="source-chips" id="source-chips"></div>
       </div>
     </div>
-    <div class="grid2" style="margin-bottom:.9rem">
-      <div class="card"><div class="lbl"><span class="dot-cyan dot"></span>Test via IP (optional)</div>
-        <input type="text" id="sni-via-ip" placeholder="e.g. 76.76.21.48"></div>
-      <div class="card"><div class="lbl"><span class="dot-orange dot"></span>Port</div>
-        <input type="text" id="sni-port" value="443"></div>
+    <div class="grid2 stagger-2" style="margin-bottom:.9rem">
+      <div class="card">
+        <div class="field-label"><span class="dot-icon d-cyan"></span>Test via IP (optional)</div>
+        <input type="text" id="sni-via-ip" placeholder="e.g. 76.76.21.48">
+      </div>
+      <div class="card">
+        <div class="field-label"><span class="dot-icon d-orange"></span>Port</div>
+        <input type="text" id="sni-port" value="443">
+      </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-pk" onclick="runSNIScan()"><span id="sni-spin"></span>◈ Scan All Domains</button>
-      <button class="btn" onclick="stopSNI()">■ Stop</button>
-      <button class="btn btn-sm" onclick="clearSNIScan()">✕ Clear</button>
-      <span id="sni-err" class="err"></span>
+    <div class="btn-row stagger-3">
+      <button class="btn btn-primary" onclick="runSNIScan()"><span id="sni-spin"></span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Scan All Domains
+      </button>
+      <button class="btn btn-ghost" onclick="stopSNI()">■ Stop</button>
+      <button class="btn btn-sm btn-ghost" onclick="clearSNIScan()">✕ Clear</button>
+      <span id="sni-err" class="err-msg"></span>
     </div>
 
     <div class="out-section" id="sni-out2">
@@ -420,29 +750,34 @@ table.sni-tbl td{padding:8px 10px;vertical-align:middle;white-space:nowrap}
     </div>
   </div>
 
-  <div class="footer">
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-line"></div>
     Built by <a href="https://github.com/Onixs50" target="_blank">Onixia</a> &nbsp;·&nbsp; VLESS Config Studio
-  </div>
-</div>
+  </footer>
+
+</div><!-- /wrap -->
 
 <script>
-// ── canvas particles ──
+/* ═══════════════════════════════
+   CANVAS PARTICLES
+═══════════════════════════════ */
 (function(){
   const c=document.getElementById('cvs'),ctx=c.getContext('2d');
-  let W,H,pts=[];const N=70;
+  let W,H,pts=[];const N=60;
   function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
-  function init(){pts=[];for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.2+.4,o:Math.random()*.4+.1})}
+  function init(){pts=[];for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.1+.3,o:Math.random()*.35+.08})}
   function draw(){
     ctx.clearRect(0,0,W,H);
     for(let i=0;i<N;i++){
       const p=pts[i];p.x+=p.vx;p.y+=p.vy;
       if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
       ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(191,0,255,${p.o})`;ctx.fill();
+      ctx.fillStyle=`rgba(59,158,255,${p.o})`;ctx.fill();
       for(let j=i+1;j<N;j++){
         const q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);
-        if(d<110){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
-          ctx.strokeStyle=`rgba(255,45,120,${.07*(1-d/110)})`;ctx.lineWidth=.4;ctx.stroke();}
+        if(d<100){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
+          ctx.strokeStyle=`rgba(99,102,241,${.06*(1-d/100)})`;ctx.lineWidth=.4;ctx.stroke();}
       }
     }
     requestAnimationFrame(draw);
@@ -451,20 +786,24 @@ table.sni-tbl td{padding:8px 10px;vertical-align:middle;white-space:nowrap}
   resize();init();draw();
 })();
 
-// ── tab logic ──
+/* ═══════════════════════════════
+   TAB LOGIC
+═══════════════════════════════ */
 function switchTab(id){
   const names=['replace','ping','sni'];
-  document.querySelectorAll('#mainTabs .tab').forEach((t,i)=>t.classList.toggle('active',names[i]===id));
+  document.querySelectorAll('#mainTabs .nav-tab').forEach((t,i)=>t.classList.toggle('active',names[i]===id));
   document.querySelectorAll('[id^="tab-"]').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
 }
 function switchSubTab(id){
-  document.querySelectorAll('#subTabs .tab').forEach((t,i)=>t.classList.toggle('active',['ip-tab','sni-tab'][i]===id));
+  document.querySelectorAll('#subTabs .sub-tab').forEach((t,i)=>t.classList.toggle('active',['ip-tab','sni-tab'][i]===id));
   ['ip-tab','sni-tab'].forEach(p=>document.getElementById(p).classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// ── helpers ──
+/* ═══════════════════════════════
+   HELPERS
+═══════════════════════════════ */
 const IP_RE=/\b(\d{1,3}\.){3}\d{1,3}\b/g;
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function extractIPs(raw){
@@ -482,7 +821,9 @@ function extractDomains(raw){
   return[...found];
 }
 
-// ── VLESS parse/build ──
+/* ═══════════════════════════════
+   VLESS PARSE / BUILD
+═══════════════════════════════ */
 let ipConfigs=[],sniConfigs=[];
 function parseVless(uri){
   uri=uri.trim();if(!uri.startsWith('vless://'))return null;
@@ -517,7 +858,7 @@ function generateIP(){
   const ips=extractIPs(document.getElementById('ips').value);
   if(!ips.length){err.textContent='No valid IPs found.';return;}
   ipConfigs=ips.map(ip=>({label:ip,uri:buildVless(cfg,ip,null)}));
-  document.getElementById('ip-stats').innerHTML=`<div class="stat">IPs: <b>${ips.length}</b></div><div class="stat">Original: <b>${esc(cfg.host)}</b></div>`;
+  document.getElementById('ip-stats').innerHTML=`<div class="stat-pill">IPs: <b>${ips.length}</b></div><div class="stat-pill">Original: <b>${esc(cfg.host)}</b></div>`;
   renderList('ip-list',ipConfigs);
   show('ip-out');
 }
@@ -528,7 +869,7 @@ function generateSNI(){
   const domains=document.getElementById('snis').value.split('\n').map(s=>s.trim()).filter(Boolean);
   if(!domains.length){err.textContent='No domains entered.';return;}
   sniConfigs=domains.map(d=>({label:d,uri:buildVless(cfg,cfg.host,d)}));
-  document.getElementById('sni-rep-stats').innerHTML=`<div class="stat">Domains: <b>${domains.length}</b></div>`;
+  document.getElementById('sni-rep-stats').innerHTML=`<div class="stat-pill">Domains: <b>${domains.length}</b></div>`;
   renderList('sni-list',sniConfigs);
   show('sni-out');
 }
@@ -545,9 +886,9 @@ function downloadTxt(listId,fname){
 }
 function show(id){const el=document.getElementById(id);el.style.display='block';el.scrollIntoView({behavior:'smooth',block:'start'});}
 
-// ══════════════════════════════════════════════════════
-// ── PING ENGINE ──
-// ══════════════════════════════════════════════════════
+/* ═══════════════════════════════
+   PING ENGINE
+═══════════════════════════════ */
 let pingStop=false;
 async function tf(url,to){
   const ac=new AbortController();const tid=setTimeout(()=>ac.abort(),to);const t=Date.now();
@@ -599,7 +940,7 @@ async function runPing(mode){
   const grid=document.getElementById('ping-results');grid.innerHTML='';
   const prog=document.getElementById('ping-progress'),lbl=document.getElementById('ping-label');
   const statsEl=document.getElementById('ping-stats');
-  statsEl.innerHTML=`<div class="stat">IPs: <b>${ips.length}</b></div><div class="stat">Mode: <b>${deep?'Deep':'Quick'}</b></div>`;
+  statsEl.innerHTML=`<div class="stat-pill">IPs: <b>${ips.length}</b></div><div class="stat-pill">Mode: <b>${deep?'Deep':'Quick'}</b></div>`;
   let done=0,ok=0;
   for(const ip of ips){
     if(pingStop)break;
@@ -613,17 +954,16 @@ async function runPing(mode){
     done++;
   }
   prog.style.width='100%';lbl.textContent=`Done — ${done} tested, ${ok} reachable`;
-  statsEl.innerHTML+=`<div class="stat">Reachable: <b>${ok}</b></div><div class="stat">Failed: <b>${done-ok}</b></div>`;
+  statsEl.innerHTML+=`<div class="stat-pill">Reachable: <b>${ok}</b></div><div class="stat-pill">Failed: <b>${done-ok}</b></div>`;
   document.getElementById(spinId).innerHTML='';
 }
 function stopPing(){pingStop=true;}
 
-// ══════════════════════════════════════════════════════
-// ── SNI SCANNER ENGINE ──
-// ══════════════════════════════════════════════════════
+/* ═══════════════════════════════
+   SNI SCANNER ENGINE
+═══════════════════════════════ */
 let sniStop=false,sniResults=[];
 
-// ── Built-in domain database by CDN ──
 const SNI_SOURCES={
   'Cloudflare':['developers.cloudflare.com','www.cloudflare.com','speed.cloudflare.com','blog.cloudflare.com','1.1.1.1','cloudflare.com','community.cloudflare.com'],
   'Google':['www.google.com','dl.google.com','storage.googleapis.com','fonts.googleapis.com','accounts.google.com','mail.google.com','cdn.google.com'],
@@ -639,7 +979,6 @@ const SNI_SOURCES={
   'Twitch/Discord':['discord.com','assets.twitch.tv','cdn.discordapp.com'],
 };
 
-// ── render source chips ──
 (function(){
   const wrap=document.getElementById('source-chips');
   Object.keys(SNI_SOURCES).forEach(name=>{
@@ -656,7 +995,6 @@ const SNI_SOURCES={
   });
 })();
 
-// ── CDN guesser ──
 function guessCDN(domain){
   const d=domain.toLowerCase();
   if(/cloudflare|1\.1\.1/.test(d))return'Cloudflare';
@@ -674,34 +1012,24 @@ function guessCDN(domain){
   return'Unknown';
 }
 
-// ── probe a domain for Reality SNI suitability ──
 async function probeSNIDomain(domain,viaIP,port){
   const to=5000,host=viaIP||domain,p=parseInt(port)||443;
   const pings=[],t0=Date.now();
   let tls=false,h2=false,stable=true;
-  // 3 round-trip samples
   for(let i=0;i<3;i++){
     const ac=new AbortController();const tid=setTimeout(()=>ac.abort(),to);const ts=Date.now();
     try{
-      await fetch(`https://${host}:${p}/`,{signal:ac.signal,mode:'no-cors',
-        headers:viaIP?{'Host':domain}:{}});
+      await fetch(`https://${host}:${p}/`,{signal:ac.signal,mode:'no-cors',headers:viaIP?{'Host':domain}:{}});
       clearTimeout(tid);pings.push(Date.now()-ts);tls=true;
     }catch(e){clearTimeout(tid);const ms=Date.now()-ts;pings.push(ms);if(e.name!=='AbortError')tls=true;}
   }
   const avg=Math.round(pings.reduce((a,b)=>a+b,0)/pings.length);
   const jitter=Math.round(Math.max(...pings)-Math.min(...pings));
-  // stability: jitter < 100ms
   stable=jitter<120&&avg<4000;
-  // h2 heuristic: fast TLS response often means h2
   h2=tls&&avg<600;
-  // score: 0-100
   let score=0;
-  if(tls)score+=35;
-  if(h2)score+=20;
-  if(stable)score+=20;
-  if(avg<200)score+=25;
-  else if(avg<400)score+=15;
-  else if(avg<800)score+=8;
+  if(tls)score+=35;if(h2)score+=20;if(stable)score+=20;
+  if(avg<200)score+=25;else if(avg<400)score+=15;else if(avg<800)score+=8;
   const grade=score>=80?'A':score>=65?'B':score>=50?'C':'D';
   return{domain,cdn:guessCDN(domain),avg,jitter,tls,h2,stable,score,grade,port:p};
 }
@@ -714,14 +1042,14 @@ function renderSNIRow(r,rank,isNew){
   if(isNew)tr.style.animation='fadeUp .4s ease both';
   const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':('#'+rank);
   tr.innerHTML=`<td class="td-rank">${medal}</td>
-    <td class="td-grade"><span class="${gradeClass(r.grade)}" style="font-weight:700">${r.grade}</span></td>
-    <td class="td-host" style="color:var(--text)">${esc(r.domain)}</td>
-    <td class="td-cdn" style="font-size:10px">${r.cdn}</td>
+    <td class="td-grade"><span class="${gradeClass(r.grade)}">${r.grade}</span></td>
+    <td class="td-host">${esc(r.domain)}</td>
+    <td class="td-cdn">${r.cdn}</td>
     <td class="td-ping ${pingColorClass(r.avg)}">${r.avg.toFixed(1)}</td>
-    <td class="td-jitter" style="font-size:10px">${r.jitter.toFixed(1)}</td>
-    <td class="td-h2" style="color:${r.h2?'#39ff14':'var(--text3)'}">${r.h2?'✓':'-'}</td>
-    <td class="td-h2" style="color:${r.tls?'#39ff14':'var(--red)'}">${r.tls?'✓':'✗'}</td>
-    <td class="td-stable" style="color:${r.stable?'#39ff14':'var(--yellow)'}">${r.stable?'✓':'~'}</td>
+    <td class="td-jitter">${r.jitter.toFixed(1)}</td>
+    <td class="td-h2" style="color:${r.h2?'var(--mint)':'var(--text3)'}">${r.h2?'✓':'-'}</td>
+    <td class="td-h2" style="color:${r.tls?'var(--mint)':'var(--rose)'}">${r.tls?'✓':'✗'}</td>
+    <td class="td-stable" style="color:${r.stable?'var(--mint)':'var(--amber)'}">${r.stable?'✓':'~'}</td>
     <td class="td-score"><span class="score-badge sc-${r.grade.toLowerCase()}">${r.score}%</span></td>
     <td class="td-target">${esc(r.domain+':'+r.port)}</td>`;
   return tr;
@@ -747,7 +1075,7 @@ async function runSNIScan(){
   document.getElementById('sni-tbody').innerHTML='';
   const prog=document.getElementById('sni-prog'),lbl=document.getElementById('sni-lbl');
   const statsEl=document.getElementById('sni-stats2');
-  statsEl.innerHTML=`<div class="stat">Domains: <b>${domains.length}</b></div>`;
+  statsEl.innerHTML=`<div class="stat-pill">Domains: <b>${domains.length}</b></div>`;
   let done=0;
   for(const d of domains){
     if(sniStop)break;
@@ -763,10 +1091,10 @@ async function runSNIScan(){
   prog.style.width='100%';
   const top=sniResults.filter(r=>r.score>=80).length;
   const good=sniResults.filter(r=>r.score>=60&&r.score<80).length;
-  statsEl.innerHTML=`<div class="stat">Scanned: <b>${done}</b></div>
-    <div class="stat">Grade A: <b>${top}</b></div>
-    <div class="stat">Grade B: <b>${good}</b></div>
-    <div class="stat">Reachable: <b>${sniResults.filter(r=>r.tls).length}</b></div>`;
+  statsEl.innerHTML=`<div class="stat-pill">Scanned: <b>${done}</b></div>
+    <div class="stat-pill">Grade A: <b>${top}</b></div>
+    <div class="stat-pill">Grade B: <b>${good}</b></div>
+    <div class="stat-pill">Reachable: <b>${sniResults.filter(r=>r.tls).length}</b></div>`;
   lbl.textContent=`Scan complete — ${done} domains checked`;
   document.getElementById('sni-spin').innerHTML='';
 }
